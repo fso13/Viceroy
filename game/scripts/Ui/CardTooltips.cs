@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.RegularExpressions;
 using Namestnik.Core;
 using Namestnik.Core.Models;
 
@@ -12,7 +13,8 @@ public static class CardTooltips
 		sb.AppendLine($"{def.Name} #{def.Id}");
 		sb.AppendLine(
 			$"Секторы: ⌜{ColorRu(def.Sectors.Tl)} {ColorRu(def.Sectors.Tr)}⌝ / ⌞{ColorRu(def.Sectors.Bl)} {ColorRu(def.Sectors.Br)}⌟");
-		foreach (var level in def.Levels.OrderBy(l => l.Level))
+		// Same order as on the card face: level 4 (top) → level 1 (bottom).
+		foreach (var level in def.Levels.OrderByDescending(l => l.Level))
 		{
 			var cost = string.Join("+",
 				Enumerable.Range(1, level.Level).Select(l => ColorRu(def.GetLevel(l).Cost)));
@@ -29,9 +31,7 @@ public static class CardTooltips
 		sb.AppendLine($"Закон #{law.Id}");
 		sb.AppendLine(
 			$"Секторы: ⌜{ColorRu(law.Sectors.Tl)} {ColorRu(law.Sectors.Tr)}⌝ / ⌞{ColorRu(law.Sectors.Bl)} {ColorRu(law.Sectors.Br)}⌟");
-		if (law.Effect?.Summary is { } summary)
-			sb.AppendLine(summary);
-		sb.Append(law.Text);
+		sb.Append(FormatLawText(law.Text));
 		return sb.ToString();
 	}
 
@@ -58,6 +58,30 @@ public static class CardTooltips
 			return $"{head}\nУровень {pc.Level}";
 		return $"{head}\nУровень {pc.Level}\nНа карте: {string.Join(", ", tokens)}";
 	}
+
+	/// <summary>Russian law body with icon placeholders expanded.</summary>
+	public static string FormatLawText(string text)
+	{
+		if (string.IsNullOrEmpty(text))
+			return text;
+		return PlaceholderRegex.Replace(text, m => m.Groups[1].Value.ToUpperInvariant() switch
+		{
+			"VP" when m.Groups[2].Success => $"{m.Groups[2].Value} очков победы",
+			"DEF" => "жетон защиты",
+			"SCI" => "жетон науки",
+			"MAG" => "жетон магии",
+			"ATK" => "жетон атаки",
+			"GEM" when m.Groups[2].Success => $"{m.Groups[2].Value} камней",
+			"CARD" => "карту",
+			"INF" => "неисчерпаемый камень",
+			"BONUS_MAG" when m.Groups[2].Success => $"бонус магии +{m.Groups[2].Value}",
+			_ => m.Value
+		});
+	}
+
+	static readonly Regex PlaceholderRegex = new(
+		@"\[([A-Z_]+)(?::([^\]]+))?\]",
+		RegexOptions.Compiled);
 
 	public static string DescribeReward(Reward reward) => reward switch
 	{

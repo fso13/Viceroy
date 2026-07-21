@@ -549,12 +549,27 @@ public sealed partial class GameEngine
 
 	void AdvanceAuctionBoard()
 	{
+		// Rules §5.7: tip → discard; base slides to tip; 4 new cards at base.
+		// UI shows base on top and tip on bottom ⇒ bottom discarded, top slides down, new on top.
+		var discarded = new List<string>();
+		var slid = new List<string>();
+		var dealt = new List<string>();
+
 		foreach (var slot in State.AuctionSlots)
 		{
 			if (slot.CardAtTip is int tip)
+			{
 				State.Discard.Add(tip);
+				discarded.Add(CardName(tip));
+			}
+
 			slot.CardAtTip = slot.CardAtBase;
+			if (slot.CardAtTip is int moved)
+				slid.Add(CardName(moved));
+
 			slot.CardAtBase = DrawBig();
+			if (slot.CardAtBase is int neu)
+				dealt.Add(CardName(neu));
 		}
 
 		var last = State.BigDeck.Count == 0;
@@ -565,9 +580,15 @@ public sealed partial class GameEngine
 		Raise(new AuctionResolvedEvent(last
 			? "Ряд сдвинут — выложены последние карты (следующий ход финальный)"
 			: "Ряд аукциона сдвинут, новые карты у оснований"));
-		Raise(new LogEvent(last
-			? "Большая колода исчерпана — следующий ход последний"
-			: "Аукцион завершён, карты сдвинуты"));
+
+		var discardText = discarded.Count > 0 ? string.Join(", ", discarded) : "—";
+		var dealText = dealt.Count > 0 ? string.Join(", ", dealt) : "—";
+		Raise(new LogEvent(
+			$"Сдвиг аукциона: в сброс (остриё) [{discardText}]; " +
+			$"вниз к острию [{string.Join(", ", slid)}]; " +
+			$"новые у основания [{dealText}]"));
+		if (last)
+			Raise(new LogEvent("Большая колода исчерпана — следующий ход последний"));
 	}
 
 	void BeginDevelopment()

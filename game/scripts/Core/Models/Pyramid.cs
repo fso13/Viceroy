@@ -1,8 +1,9 @@
 namespace Namestnik.Core.Models;
 
 /// <summary>
-/// Power pyramid. Level 1 is the base row. Level N&gt;1 cards sit on two adjacent cards of level N-1
-/// (adjacent = consecutive entries in that row's list).
+/// Power pyramid. Level 1 is the base row. Level N&gt;1 cards sit on two <b>adjacent</b>
+/// cards of level N-1 (adjacent = consecutive Index values, no gaps — a card cannot hang).
+/// For L2+, <see cref="PyramidCard.Index"/> is the left support's Index (column).
 /// </summary>
 public sealed class Pyramid
 {
@@ -24,7 +25,7 @@ public sealed class Pyramid
 
 	/// <param name="index">
 	/// L1: 0 = append left, Count = append right.
-	/// L2+: array index of the left support card on the row below.
+	/// L2+: Index of the left support card on the row below (must have a neighbour at Index+1).
 	/// </param>
 	public void Place(PyramidCard card)
 	{
@@ -62,10 +63,8 @@ public sealed class Pyramid
 
 	void PlaceAbove(PyramidCard card)
 	{
-		if (!Rows.TryGetValue(card.Level - 1, out var below) || below.Count < 2)
-			throw new InvalidOperationException("Недостаточно карт на нижнем уровне.");
-		if (card.Index < 0 || card.Index + 1 >= below.Count)
-			throw new InvalidOperationException("Некорректная опора.");
+		if (!TryGetAdjacentSupports(card.Level - 1, card.Index, out _, out _))
+			throw new InvalidOperationException("Карта не может нависать: нужны две соседние опоры.");
 		if (!IsSupportFree(card.Level - 1, card.Index))
 			throw new InvalidOperationException("Место уже занято.");
 
@@ -93,6 +92,25 @@ public sealed class Pyramid
 		return above.All(c => c.Index != leftIndex);
 	}
 
+	/// <summary>
+	/// True when the row has cards at <paramref name="leftIndex"/> and <paramref name="leftIndex"/>+1
+	/// (physically adjacent columns — no gap).
+	/// </summary>
+	public bool TryGetAdjacentSupports(
+		int belowLevel,
+		int leftIndex,
+		out PyramidCard left,
+		out PyramidCard right)
+	{
+		left = null!;
+		right = null!;
+		if (!Rows.TryGetValue(belowLevel, out var below))
+			return false;
+		left = below.FirstOrDefault(c => c.Index == leftIndex)!;
+		right = below.FirstOrDefault(c => c.Index == leftIndex + 1)!;
+		return left is not null && right is not null;
+	}
+
 	public List<(int Level, int Index)> LegalPlacements(int maxLevel = GameState.MaxPyramidLevels)
 	{
 		var result = new List<(int, int)>();
@@ -109,10 +127,16 @@ public sealed class Pyramid
 		{
 			if (!Rows.TryGetValue(level - 1, out var below) || below.Count < 2)
 				continue;
-			for (var i = 0; i < below.Count - 1; i++)
+
+			var sorted = below.OrderBy(c => c.Index).ToList();
+			for (var i = 0; i < sorted.Count - 1; i++)
 			{
-				if (IsSupportFree(level - 1, i))
-					result.Add((level, i));
+				// Only neighbouring columns — skip gaps so upper cards cannot hang.
+				if (sorted[i + 1].Index != sorted[i].Index + 1)
+					continue;
+				var leftIndex = sorted[i].Index;
+				if (IsSupportFree(level - 1, leftIndex))
+					result.Add((level, leftIndex));
 			}
 		}
 
@@ -123,11 +147,9 @@ public sealed class Pyramid
 	{
 		if (upper.Level < 2)
 			return null;
-		if (!Rows.TryGetValue(upper.Level - 1, out var below))
+		if (!TryGetAdjacentSupports(upper.Level - 1, upper.Index, out var left, out var right))
 			return null;
-		if (upper.Index < 0 || upper.Index + 1 >= below.Count)
-			return null;
-		return (below[upper.Index], below[upper.Index + 1]);
+		return (left, right);
 	}
 
 	/// <summary>All upper cards that form a circle (level ≥ 2).</summary>

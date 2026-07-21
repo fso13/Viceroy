@@ -30,6 +30,7 @@ public partial class GameScreenController : Control
 	Button _cancelBuildButton = null!;
 	CardZoomOverlay _zoom = null!;
 	NoticeOverlay _notice = null!;
+	ActionModalOverlay _actionModal = null!;
 
 	readonly HashSet<int> _lawReturnSelection = new();
 	readonly HashSet<int> _law72TuckSelection = new();
@@ -81,6 +82,8 @@ public partial class GameScreenController : Control
 		AddChild(_zoom);
 		_notice = new NoticeOverlay();
 		AddChild(_notice);
+		_actionModal = new ActionModalOverlay();
+		AddChild(_actionModal);
 
 		_handBox.AddThemeConstantOverride("separation", CardGap);
 		_auctionCards.AddThemeConstantOverride("separation", CardGap);
@@ -97,11 +100,14 @@ public partial class GameScreenController : Control
 		Refresh();
 	}
 
-	void ShowCardZoom(Texture2D texture, string title, string details) =>
-		_zoom.ShowCard(texture, title, details);
-
-	void BindInspect(CardThumb thumb, Texture2D texture, string title, string details) =>
-		thumb.EnableInspect(() => ShowCardZoom(texture, title, details));
+	void BindInspect(
+		CardThumb thumb,
+		CardDatabase? cards,
+		CardKind kind,
+		int definitionId,
+		string title,
+		string details) =>
+		thumb.EnableInspect(() => _zoom.ShowCard(cards, kind, definitionId, title, details));
 
 	void ClearBuildDraft()
 	{
@@ -135,6 +141,7 @@ public partial class GameScreenController : Control
 			_handBox.Visible = false;
 			_level5Row.Visible = false;
 			_lawPromptRow.Visible = false;
+			_actionModal.HideModal();
 			_passGemsRow.Visible = false;
 			_rewardRow.Visible = false;
 			_tokenSwapRow.Visible = false;
@@ -155,6 +162,7 @@ public partial class GameScreenController : Control
 			_handBox.Visible = false;
 			_level5Row.Visible = false;
 			_lawPromptRow.Visible = false;
+			_actionModal.HideModal();
 			_passGemsRow.Visible = false;
 			_rewardRow.Visible = false;
 			_tokenSwapRow.Visible = false;
@@ -240,7 +248,7 @@ public partial class GameScreenController : Control
 		_passDevButton.Disabled = !canDev;
 		_handBox.Visible = true;
 		_level5Row.Visible = canLevel5;
-		_lawPromptRow.Visible = canLaw;
+		_lawPromptRow.Visible = false;
 		_passGemsRow.Visible = canPassGems;
 		_rewardRow.Visible = canReward;
 		_tokenSwapRow.Visible = canTokenSwap || (s.PendingTokenSwap?.PlayerId == localId);
@@ -331,43 +339,96 @@ public partial class GameScreenController : Control
 		if (_pendingTuckFreeDrop is { } pending && canDev)
 			RebuildTuckFreePicker(local, cards, pending);
 
-		for (var level = maxLevel; level >= 1; level--)
+		// Brick layout on a shared base grid:
+		// level L slot i is centered on the seam between level L-1 slots i and i+1.
+		var cell = CardThumb.OuterSize(ThumbPyramid, reserveCaption: false);
+		var hGap = Mathf.Max(2, (int)(ThumbPyramid.X * 0.02f));
+		var vGap = hGap;
+		var pitch = cell.X + hGap;
+		var baseCount = Math.Max(1, local.Pyramid.BaseCount);
+		var baseWidth = baseCount * cell.X + Math.Max(0, baseCount - 1) * hGap;
+
+		var stack = new VBoxContainer
 		{
-			var levelBox = new VBoxContainer();
-			levelBox.AddThemeConstantOverride("separation", 2);
-			levelBox.AddChild(new Label { Text = $"Уровень {level}" });
-			var rowBox = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-			rowBox.AddThemeConstantOverride("separation", CardGap);
+			Alignment = BoxContainer.AlignmentMode.Center,
+			SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter
+		};
+		stack.AddThemeConstantOverride("separation", vGap);
 
-			if (level == 1)
-				BuildBaseRow(rowBox, local, cards, canDev, legalSet);
-			else
-				BuildUpperRow(rowBox, local, cards, canDev, legalSet, level);
-
-			levelBox.AddChild(rowBox);
-			_pyramidCards.AddChild(levelBox);
+		for (var level = maxLevel; level >= 2; level--)
+		{
+			var rowWrap = new MarginContainer
+			{
+				ZIndex = level,
+				CustomMinimumSize = new Vector2(baseWidth, cell.Y)
+			};
+			var leftPad = (int)Math.Round((level - 1) * pitch * 0.5f);
+			rowWrap.AddThemeConstantOverride("margin_left", leftPad);
+			var rowBox = new HBoxContainer
+			{
+				Alignment = BoxContainer.AlignmentMode.Begin,
+				SizeFlagsHorizontal = Control.SizeFlags.Fill
+			};
+			rowBox.AddThemeConstantOverride("separation", hGap);
+			BuildUpperRow(rowBox, local, cards, canDev, legalSet, level, cell, baseCount);
+			rowWrap.AddChild(rowBox);
+			stack.AddChild(rowWrap);
 		}
+
+		var baseCards = new HBoxContainer
+		{
+			Alignment = BoxContainer.AlignmentMode.Begin,
+			ZIndex = 1,
+			CustomMinimumSize = new Vector2(baseWidth, cell.Y)
+		};
+		baseCards.AddThemeConstantOverride("separation", hGap);
+		BuildBaseCards(baseCards, local, cards, canDev, legalSet, cell);
+		stack.AddChild(baseCards);
+
+		// Side L1 drops sit beside the stack, pinned to the base row (bottom).
+		var board = new HBoxContainer
+		{
+			Alignment = BoxContainer.AlignmentMode.Center,
+			SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter
+		};
+		board.AddThemeConstantOverride("separation", hGap);
+		if (canDev && legalSet.Contains((1, 0)))
+		{
+			var left = MakeDropSlot(local, cards, 1, 0, baseCount == 0 ? "Старт" : "← L1", cell);
+			left.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
+			left.ZIndex = 1;
+			board.AddChild(left);
+		}
+
+		board.AddChild(stack);
+		if (canDev && local.Pyramid.BaseCount > 0 && legalSet.Contains((1, local.Pyramid.BaseCount)))
+		{
+			var right = MakeDropSlot(local, cards, 1, local.Pyramid.BaseCount, "L1 →", cell);
+			right.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
+			right.ZIndex = 1;
+			board.AddChild(right);
+		}
+
+		_pyramidCards.AddChild(board);
 	}
 
-	void BuildBaseRow(
+	void BuildBaseCards(
 		HBoxContainer rowBox,
 		PlayerState local,
 		CardDatabase? cards,
 		bool canDev,
-		HashSet<(int Level, int Index)> legalSet)
+		HashSet<(int Level, int Index)> legalSet,
+		Vector2 cell)
 	{
-		var baseCount = local.Pyramid.BaseCount;
-		if (canDev && legalSet.Contains((1, 0)))
-			rowBox.AddChild(MakeDropSlot(local, cards, 1, 0, baseCount == 0 ? "Старт" : "← L1"));
-
 		if (local.Pyramid.Rows.TryGetValue(1, out var row))
 		{
 			foreach (var pc in row.OrderBy(c => c.Index))
 				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
 		}
-
-		if (canDev && baseCount > 0 && legalSet.Contains((1, baseCount)))
-			rowBox.AddChild(MakeDropSlot(local, cards, 1, baseCount, "L1 →"));
+		else if (!canDev || !legalSet.Contains((1, 0)))
+		{
+			rowBox.AddChild(new Label { Text = "(пусто)" });
+		}
 	}
 
 	void BuildUpperRow(
@@ -376,7 +437,9 @@ public partial class GameScreenController : Control
 		CardDatabase? cards,
 		bool canDev,
 		HashSet<(int Level, int Index)> legalSet,
-		int level)
+		int level,
+		Vector2 cell,
+		int baseCount)
 	{
 		if (!local.Pyramid.Rows.TryGetValue(level - 1, out var below) || below.Count < 2)
 		{
@@ -384,29 +447,36 @@ public partial class GameScreenController : Control
 			return;
 		}
 
-		var existing = local.Pyramid.Rows.TryGetValue(level, out var upper)
+		var existingByVisual = local.Pyramid.Rows.TryGetValue(level, out var upper)
 			? upper.ToDictionary(c => c.Index)
 			: new Dictionary<int, PyramidCard>();
 
-		for (var i = 0; i < below.Count - 1; i++)
+		var legalByVisual = new HashSet<int>();
+		foreach (var (lvl, idx) in legalSet)
 		{
-			if (existing.TryGetValue(i, out var pc))
+			if (lvl == level)
+				legalByVisual.Add(idx);
+		}
+
+		var slotCount = Math.Max(1, baseCount - level + 1);
+		for (var visual = 0; visual < slotCount; visual++)
+		{
+			if (existingByVisual.TryGetValue(visual, out var pc))
 			{
 				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
 			}
-			else if (canDev && legalSet.Contains((level, i)))
+			else if (canDev && legalByVisual.Contains(visual))
 			{
-				rowBox.AddChild(MakeDropSlot(local, cards, level, i, $"L{level}"));
+				rowBox.AddChild(MakeDropSlot(local, cards, level, visual, $"L{level}", cell));
 			}
 			else
 			{
-				var spacer = new Control
+				rowBox.AddChild(new Control
 				{
-					CustomMinimumSize = CardThumb.OuterSize(ThumbPyramid),
+					CustomMinimumSize = cell,
 					SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
 					SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
-				};
-				rowBox.AddChild(spacer);
+				});
 			}
 		}
 	}
@@ -417,14 +487,18 @@ public partial class GameScreenController : Control
 			? $"#{pc.Card.DefinitionId}"
 			: CardTooltips.ForPyramidCard(cards, pc);
 		var thumb = new CardThumb();
-		thumb.Setup(
-			CardArt.Get(pc.Card.DefinitionId),
-			CardShortName(pc.Card, cards),
+		var name = CardShortName(pc.Card, cards);
+		thumb.SetupCard(
+			cards,
+			pc.Card.Kind,
+			pc.Card.DefinitionId,
+			name,
 			tip,
 			ThumbPyramid,
-			showCaption: true);
+			reserveCaption: false);
+		thumb.ZIndex = pc.Level;
 		thumb.SetTokenBadges(PyramidStats.TokenBadges(pc));
-		BindInspect(thumb, CardArt.Get(pc.Card.DefinitionId), CardShortName(pc.Card, cards), tip);
+		BindInspect(thumb, cards, pc.Card.Kind, pc.Card.DefinitionId, name, tip);
 
 		if (canDev)
 		{
@@ -441,7 +515,8 @@ public partial class GameScreenController : Control
 		CardDatabase? cards,
 		int level,
 		int index,
-		string caption)
+		string caption,
+		Vector2? cell = null)
 	{
 		var slot = new PyramidDropSlot();
 		var tip = $"Слот ур.{level}" + (level == 1
@@ -451,7 +526,7 @@ public partial class GameScreenController : Control
 			level,
 			index,
 			caption,
-			CardThumb.OuterSize(ThumbPyramid),
+			cell ?? CardThumb.OuterSize(ThumbPyramid, reserveCaption: false),
 			tip,
 			handIndex => CanDropOnSlot(local, cards, handIndex, level),
 			handIndex => DropOnSlot(local, cards, handIndex, level, index));
@@ -610,7 +685,7 @@ public partial class GameScreenController : Control
 				if (id is not int cid)
 				{
 					var empty = new CardThumb();
-					empty.Setup(CardArt.Back(), emptyTag, "Пусто", ThumbAuction, showCaption: false);
+					empty.SetupBack(emptyTag, "Пусто", ThumbAuction);
 					empty.Modulate = new Color(1, 1, 1, 0.35f);
 					return empty;
 				}
@@ -622,12 +697,14 @@ public partial class GameScreenController : Control
 					new CardInstance { InstanceId = 0, Kind = CardKind.Character, DefinitionId = cid },
 					cards);
 				var thumb = new CardThumb();
-				thumb.Setup(CardArt.Get(cid), name, tip, ThumbAuction, showCaption: true);
-				BindInspect(thumb, CardArt.Get(cid), name, tip);
+				thumb.SetupCard(cards, CardKind.Character, cid, name, tip, ThumbAuction);
+				BindInspect(thumb, cards, CardKind.Character, cid, name, tip);
 				return thumb;
 			}
 
-			col.AddChild(MakeAuctionThumb(slot.CardAtTip, "↑"));
+			// Arrow points down: основание сверху, остриё снизу.
+			// Конец аукциона: низ (остриё) → сброс, верх сдвигается вниз, новые 4 сверху.
+			col.AddChild(MakeAuctionThumb(slot.CardAtBase, "осн."));
 
 			var color = slot.Color;
 			var hasCards = slot.AvailableCount > 0;
@@ -658,7 +735,7 @@ public partial class GameScreenController : Control
 			}
 
 			col.AddChild(gemBtn);
-			col.AddChild(MakeAuctionThumb(slot.CardAtBase, "↓"));
+			col.AddChild(MakeAuctionThumb(slot.CardAtTip, "остр."));
 			_auctionCards.AddChild(col);
 		}
 	}
@@ -687,8 +764,10 @@ public partial class GameScreenController : Control
 			_choiceRow.AddChild(thumb);
 			var captured = id;
 			var name = CardShortName(new CardInstance { InstanceId = 0, Kind = CardKind.Character, DefinitionId = id }, cards);
-			thumb.Setup(
-				CardArt.Get(id),
+			thumb.SetupCard(
+				cards,
+				CardKind.Character,
+				id,
 				$"Взять\n{name}",
 				tip,
 				ThumbHand,
@@ -696,8 +775,9 @@ public partial class GameScreenController : Control
 				{
 					session.Submit(new ChooseAuctionCardCommand(session.Session?.LocalPlayerId ?? 0, captured));
 					Refresh();
-				});
-			BindInspect(thumb, CardArt.Get(id), name, tip);
+				},
+				showCaption: true);
+			BindInspect(thumb, cards, CardKind.Character, id, name, tip);
 		}
 	}
 
@@ -771,11 +851,17 @@ public partial class GameScreenController : Control
 			child.QueueFree();
 
 		if (state?.PendingLaw is not { } pending)
+		{
+			_actionModal.HideModal();
 			return;
+		}
 
 		var session = GetNode<GameSessionAutoload>("/root/GameSession");
 		var pid = session.Session?.LocalPlayerId ?? 0;
-		_lawPromptRow.AddChild(new Label { Text = $"Закон #{pending.LawDefinitionId}:" });
+		var title = $"Закон #{pending.LawDefinitionId}";
+		var body = cards?.Laws.TryGetValue(pending.LawDefinitionId, out var law) == true
+			? CardTooltips.FormatLawText(law.Text)
+			: null;
 
 		switch (pending.Kind)
 		{
@@ -783,84 +869,89 @@ public partial class GameScreenController : Control
 			case LawPromptKind.OptionalSwapDecline:
 			case LawPromptKind.ParkGems:
 			case LawPromptKind.OfferTuckDrawnCard:
+			{
+				var actions = new List<(string, Action, bool)>();
 				for (var i = 0; i < pending.OptionLabels.Count; i++)
 				{
 					var idx = i;
-					var btn = new Button { Text = pending.OptionLabels[i] };
-					btn.Pressed += () =>
+					actions.Add((pending.OptionLabels[i], () =>
 					{
 						session.Submit(new ResolveLawCommand(pid, OptionIndex: idx));
 						Refresh();
-					};
-					_lawPromptRow.AddChild(btn);
+					}, false));
 				}
 
+				_actionModal.ShowChoices(title, body, actions);
 				break;
+			}
 
 			case LawPromptKind.ChooseInfiniteColor:
-				foreach (GemColor color in Enum.GetValues<GemColor>())
-				{
-					var c = color;
-					var btn = MakeGemButton(c);
-					btn.Pressed += () =>
+			{
+				var gems = Enum.GetValues<GemColor>()
+					.Select(c =>
 					{
-						session.Submit(new ResolveLawCommand(pid, GemColor: c));
-						Refresh();
-					};
-					_lawPromptRow.AddChild(btn);
-				}
-
+						var color = c;
+						return (color, (Action)(() =>
+						{
+							session.Submit(new ResolveLawCommand(pid, GemColor: color));
+							Refresh();
+						}));
+					})
+					.ToList();
+				_actionModal.ShowGemChoices(title, body ?? "Выберите цвет неисчерпаемого камня", gems);
 				break;
+			}
 
 			case LawPromptKind.TakeAuctionCard:
+			{
+				var actions = new List<(string, Action, bool)>();
 				foreach (var id in state.AuctionSlots.SelectMany(slot => slot.AvailableCards()))
 				{
 					var name = cards?.Characters.TryGetValue(id, out var ch) == true ? ch.Name : $"#{id}";
 					var captured = id;
-					var btn = new Button { Text = $"Аукцион: {name}" };
-					btn.Pressed += () =>
+					actions.Add(($"Взять с аукциона: {name}", () =>
 					{
 						session.Submit(new ResolveLawCommand(pid, CharacterDefinitionId: captured));
 						Refresh();
-					};
-					_lawPromptRow.AddChild(btn);
+					}, false));
 				}
 
+				if (actions.Count == 0)
+					actions.Add(("Нет доступных карт на аукционе", () => { }, true));
+				_actionModal.ShowChoices(title, body, actions);
 				break;
+			}
 
 			case LawPromptKind.ReturnLawsToDeck:
-				_lawPromptRow.AddChild(new Label { Text = "Выберите 2 закона:" });
+			{
+				var hint = (body ?? "") + "\n\nВыберите ровно 2 закона из руки, затем подтвердите.";
+				var actions = new List<(string, Action, bool)>();
 				for (var i = 0; i < local.Hand.Count; i++)
 				{
 					if (local.Hand[i].Kind != CardKind.Law)
 						continue;
 					var idx = i;
 					var selected = _lawReturnSelection.Contains(idx);
-					var btn = new Button
-					{
-						Text = $"{(selected ? "✓ " : "")}#{local.Hand[i].DefinitionId}"
-					};
-					btn.Pressed += () =>
+					actions.Add(($"{(selected ? "✓ " : "")}Закон #{local.Hand[i].DefinitionId}", () =>
 					{
 						if (!_lawReturnSelection.Add(idx))
 							_lawReturnSelection.Remove(idx);
 						Refresh();
-					};
-					_lawPromptRow.AddChild(btn);
+					}, false));
 				}
 
-				var confirm = new Button
-				{
-					Text = "Вернуть 2",
-					Disabled = _lawReturnSelection.Count != 2
-				};
-				confirm.Pressed += () =>
+				actions.Add(($"Вернуть выбранные ({_lawReturnSelection.Count}/2)", () =>
 				{
 					session.Submit(new ResolveLawCommand(pid, HandIndices: _lawReturnSelection.ToList()));
 					_lawReturnSelection.Clear();
 					Refresh();
-				};
-				_lawPromptRow.AddChild(confirm);
+				}, _lawReturnSelection.Count != 2));
+				_actionModal.ShowChoices(title, hint.Trim(), actions);
+				break;
+			}
+
+			default:
+				_actionModal.HideModal();
 				break;
 		}
 	}
@@ -1035,9 +1126,10 @@ public partial class GameScreenController : Control
 			var thumb = new CardThumb();
 			col.AddChild(thumb);
 			var hi = i;
-			var art = CardArt.Get(card.DefinitionId);
-			thumb.Setup(
-				art,
+			thumb.SetupCard(
+				cards,
+				card.Kind,
+				card.DefinitionId,
 				title,
 				tip + (canDev ? "\n\nПеретащите на слот пирамиды" : ""),
 				ThumbHand,
@@ -1045,7 +1137,7 @@ public partial class GameScreenController : Control
 					? () => SelectHandCard(hi)
 					: null);
 			thumb.SetSelected(selected);
-			BindInspect(thumb, art, title, tip);
+			BindInspect(thumb, cards, card.Kind, card.DefinitionId, title, tip);
 			if (canDev)
 				thumb.EnableHandDrag(hi, card.Kind, card.DefinitionId);
 

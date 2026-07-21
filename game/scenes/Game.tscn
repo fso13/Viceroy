@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bnamestnikgamescreen"]
+[gd_scene load_steps=3 format=3 uid="uid://bnamestnikgamescreen"]
 
 [ext_resource type="Script" path="res://scripts/Ui/GameScreenController.cs" id="1_game"]
+[ext_resource type="Script" path="res://scripts/Ui/SymbolLegendBar.cs" id="2_legend"]
 
 [node name="Game" type="Control"]
 layout_mode = 3
@@ -162,6 +163,13 @@ theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.75, 0.82, 0.7, 1)
 text = "…"
 autowrap_mode = 3
+
+[node name="SymbolLegend" type="HFlowContainer" parent="Margin/VBox/TableRow/PyramidBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 4
+script = ExtResource("2_legend")
 
 [node name="PyramidCards" type="VBoxContainer" parent="Margin/VBox/TableRow/PyramidBox"]
 unique_name_in_owner = true

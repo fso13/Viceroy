@@ -1,4 +1,6 @@
 using Godot;
+using Namestnik.Core;
+using Namestnik.Core.Models;
 
 namespace Namestnik.Ui;
 
@@ -7,7 +9,7 @@ public partial class CardZoomOverlay : Control
 {
 	ColorRect _dim = null!;
 	PanelContainer _panel = null!;
-	TextureRect _art = null!;
+	CardFaceView _face = null!;
 	Label _title = null!;
 	Label _body = null!;
 
@@ -48,10 +50,8 @@ public partial class CardZoomOverlay : Control
 		vbox.AddThemeConstantOverride("separation", 8);
 		_title = new Label { HorizontalAlignment = HorizontalAlignment.Center };
 		_title.AddThemeFontSizeOverride("font_size", 18);
-		_art = new TextureRect
+		_face = new CardFaceView
 		{
-			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
 			CustomMinimumSize = new Vector2(420, 420),
 			SizeFlagsHorizontal = SizeFlags.ShrinkCenter
 		};
@@ -66,18 +66,29 @@ public partial class CardZoomOverlay : Control
 		close.Pressed += HideZoom;
 
 		vbox.AddChild(_title);
-		vbox.AddChild(_art);
+		vbox.AddChild(_face);
 		vbox.AddChild(_body);
 		vbox.AddChild(close);
 		_panel.AddChild(vbox);
 		AddChild(_panel);
 	}
 
-	public void ShowCard(Texture2D texture, string title, string details)
+	public void ShowCard(CardDatabase? db, CardKind kind, int definitionId, string title, string details)
 	{
-		if (!IsNodeReady() || _art is null)
+		if (!IsNodeReady() || _face is null)
 			_Ready();
-		_art!.Texture = texture;
+		_face!.ShowFromDb(db, kind, definitionId);
+		_title.Text = title;
+		_body.Text = details;
+		Visible = true;
+		CallDeferred(nameof(CenterPanel));
+	}
+
+	public void ShowBack(string title, string details)
+	{
+		if (!IsNodeReady() || _face is null)
+			_Ready();
+		_face!.ShowBack();
 		_title.Text = title;
 		_body.Text = details;
 		Visible = true;

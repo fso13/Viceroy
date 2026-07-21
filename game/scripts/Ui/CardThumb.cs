@@ -1,4 +1,5 @@
 using Godot;
+using Namestnik.Core;
 using Namestnik.Core.Models;
 
 namespace Namestnik.Ui;
@@ -6,7 +7,7 @@ namespace Namestnik.Ui;
 /// <summary>Card thumbnail: click, long-press inspect, and/or drag from hand.</summary>
 public partial class CardThumb : PanelContainer
 {
-	public TextureRect Art { get; private set; } = null!;
+	public CardFaceView Face { get; private set; } = null!;
 	public Label Caption { get; private set; } = null!;
 
 	public bool Selected { get; private set; }
@@ -39,7 +40,7 @@ public partial class CardThumb : PanelContainer
 
 	public override void _Ready()
 	{
-		if (Art is not null)
+		if (Face is not null)
 			return;
 		Build();
 	}
@@ -66,13 +67,11 @@ public partial class CardThumb : PanelContainer
 			ClipContents = true,
 			CustomMinimumSize = new Vector2(96, 96)
 		};
-		Art = new TextureRect
+		Face = new CardFaceView
 		{
-			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
 			MouseFilter = MouseFilterEnum.Ignore
 		};
-		Art.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		Face.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
 		_badges = new HFlowContainer
 		{
@@ -81,13 +80,13 @@ public partial class CardThumb : PanelContainer
 		};
 		_badges.AddThemeConstantOverride("h_separation", 2);
 		_badges.AddThemeConstantOverride("v_separation", 1);
-		_badges.SetAnchorsPreset(LayoutPreset.BottomWide);
-		_badges.OffsetTop = -22;
-		_badges.OffsetBottom = -2;
+		_badges.SetAnchorsPreset(LayoutPreset.TopWide);
+		_badges.OffsetTop = 2;
+		_badges.OffsetBottom = 22;
 		_badges.OffsetLeft = 2;
 		_badges.OffsetRight = -2;
 
-		_artStack.AddChild(Art);
+		_artStack.AddChild(Face);
 		_artStack.AddChild(_badges);
 
 		Caption = new Label
@@ -111,27 +110,53 @@ public partial class CardThumb : PanelContainer
 	public static Vector2 OuterSize(Vector2 artSize, bool reserveCaption = true) =>
 		new(artSize.X + Chrome, artSize.Y + Chrome + (reserveCaption ? CaptionHeight : 0f));
 
-	public void Setup(
-		Texture2D texture,
+	public void SetupBack(
+		string caption,
+		string tooltip,
+		Vector2 artSize,
+		bool showCaption = false,
+		bool reserveCaption = true)
+	{
+		if (Face is null)
+			Build();
+		Face!.ShowBack();
+		ApplyChrome(caption, tooltip, artSize, showCaption, reserveCaption);
+	}
+
+	public void SetupCard(
+		CardDatabase? db,
+		CardKind kind,
+		int definitionId,
 		string caption,
 		string tooltip,
 		Vector2 artSize,
 		Action? onPressed = null,
-		bool showCaption = true)
+		bool showCaption = false,
+		bool reserveCaption = true)
 	{
-		if (Art is null)
+		if (Face is null)
 			Build();
+		Face!.ShowFromDb(db, kind, definitionId);
+		ApplyChrome(caption, tooltip, artSize, showCaption, reserveCaption, onPressed);
+	}
 
-		Art!.Texture = texture;
+	void ApplyChrome(
+		string caption,
+		string tooltip,
+		Vector2 artSize,
+		bool showCaption,
+		bool reserveCaption = true,
+		Action? onPressed = null)
+	{
 		_artStack.CustomMinimumSize = artSize;
 		Caption.Text = caption;
-		Caption.Visible = true; // always occupy height so rows stay aligned
+		Caption.Visible = reserveCaption;
 		Caption.Modulate = showCaption && !string.IsNullOrEmpty(caption)
 			? Colors.White
 			: new Color(1, 1, 1, 0);
 		TooltipText = tooltip + "\n(удерживайте для увеличения)";
 
-		var outer = OuterSize(artSize, reserveCaption: true);
+		var outer = OuterSize(artSize, reserveCaption);
 		CustomMinimumSize = outer;
 		Size = outer;
 
@@ -247,14 +272,13 @@ public partial class CardThumb : PanelContainer
 		_pressing = false;
 		SetProcess(false);
 
-		var preview = new TextureRect
+		var preview = new CardFaceView
 		{
-			Texture = Art.Texture,
-			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
 			CustomMinimumSize = new Vector2(72, 72),
+			Size = new Vector2(72, 72),
 			Modulate = new Color(1, 1, 1, 0.85f)
 		};
+		preview.CopyContentFrom(Face);
 		SetDragPreview(preview);
 		return PyramidDropSlot.MakeDragPayload(handIndex, _dragKind, _dragDefinitionId);
 	}
