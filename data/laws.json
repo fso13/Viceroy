@@ -1,0 +1,386 @@
+[
+  {
+    "id": 65,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "Выложите эту карту в свою пирамиду вместо любой другой карты, которую заберите на руку (все лежавшие на ней жетоны переходят на эту карту).",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Replace any pyramid card with this law; return the replaced card to hand; transfer all tokens onto this card.",
+      "mechanizable": true
+    },
+    "source": "s08_r1c3.jpg"
+  },
+  {
+    "id": 66,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "Подложите эту карту под любую карту персонажа в вашей пирамиде. За каждый жетон, лежащий на этой карте персонажа, положите на неё ещё один такой же жетон.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Tuck this law under a character in your pyramid; duplicate every token currently on that character.",
+      "mechanizable": true
+    },
+    "source": "s08_r1c0.jpg"
+  },
+  {
+    "id": 67,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "Можете обменять 1 жетон с любой карты в своей пирамиде на 1 жетон с любой карты в пирамиде другого игрока, заплатив ему 3 любых камня.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Optional: pay another player 3 gems of any color to swap 1 token on your pyramid card with 1 token on theirs.",
+      "mechanizable": true
+    },
+    "source": "s09_r1c0.jpg"
+  },
+  {
+    "id": 68,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "В конце игры получите [VP:1] за каждую карту в своей пирамиде (включая подложенные).",
+    "effect": {
+      "timing": "end_game",
+      "summary": "1 VP per card in your pyramid, including tucked cards.",
+      "mechanizable": true
+    },
+    "source": "s09_r1c3.jpg"
+  },
+  {
+    "id": 69,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "Пропустите фазу аукциона. Возьмите на руку 1 карту из выставленных на аукцион. Выложите карту из малой колоды вместо взятой.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Skip the auction phase; take 1 face-up auction card to hand; replace it from the small deck.",
+      "mechanizable": true
+    },
+    "source": "s09_r0c1.jpg"
+  },
+  {
+    "id": 70,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "Возьмите на руку 3 карты из колоды законов. Затем верните 2 карты законов обратно на верх колоды в любом порядке.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Draw 3 law cards, then put 2 law cards from hand back on top of the law deck in any order.",
+      "mechanizable": true
+    },
+    "source": "s07_r0c3.jpg"
+  },
+  {
+    "id": 71,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [ATK];\n• либо положите на эту карту [VP:6];\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [ATK] on this card; place [VP:6] on this card; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s08_r1c1.jpg"
+  },
+  {
+    "id": 72,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "Подложите под эту карту сколько угодно карт с руки. В конце игры получите [VP:2] за каждую подложенную сюда карту.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "Tuck any number of cards from hand under this law; 2 VP per tucked card at end of game.",
+      "mechanizable": true
+    },
+    "source": "s08_r0c0.jpg"
+  },
+  {
+    "id": 73,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [DEF];\n• либо положите на эту карту неисчерпаемый камень любого цвета;\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [DEF] on this card; place [INF:any] on this card; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s07_r0c2.jpg"
+  },
+  {
+    "id": 74,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "Подложите под эту карту 1 свободную карту из своей пирамиды. В конце игры получите:\n[VP:3], если эта карта лежит на 1-м уровне;\n[VP:6], если эта карта лежит на 2-м уровне;\n[VP:9], если эта карта лежит на 3-м уровне;\n[VP:12], если эта карта лежит на 4-м уровне.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "Tuck 1 free pyramid card under this law; end game score 3/6/9/12 VP if this law is on level 1/2/3/4.",
+      "mechanizable": true
+    },
+    "source": "s09_r1c1.jpg"
+  },
+  {
+    "id": 75,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "В конце игры получите [VP:3] дополнительно за каждый свой набор [DEF] [MAG] [SCI].",
+    "effect": {
+      "timing": "end_game",
+      "summary": "+3 VP per complete set of [DEF]+[MAG]+[SCI] (in addition to the normal set scoring).",
+      "mechanizable": true
+    },
+    "source": "s09_r0c3.jpg"
+  },
+  {
+    "id": 76,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "Положите на эту карту не больше 8 камней из-за своей ширмы. В конце игры получите [VP:2] за каждый камень на этой карте.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "Move up to 8 gems from behind your screen onto this card; 2 VP per gem on this card at end of game.",
+      "mechanizable": true
+    },
+    "source": "s07_r1c3.jpg"
+  },
+  {
+    "id": 77,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [ATK];\n• либо возьмите 1 карту из малой колоды или из колоды законов;\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [ATK] on this card; draw 1 card from the small deck or law deck; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s08_r0c1.jpg"
+  },
+  {
+    "id": 78,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "Всякий раз, когда вы берёте карту, можете подложить её под эту карту. В конце игры получите [VP:4] за каждую подложенную сюда карту.",
+    "effect": {
+      "timing": "triggered",
+      "summary": "Whenever you take a card, you may tuck it under this law; 4 VP per tucked card at end of game.",
+      "mechanizable": true
+    },
+    "source": "s07_r1c1.jpg"
+  },
+  {
+    "id": 79,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "В конце игры получите [VP:1] дополнительно за каждый свой одноцветный круг и неисчерпаемый камень.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "+1 VP for each monochrome circle and each infinite gem you have.",
+      "mechanizable": true
+    },
+    "source": "s08_r0c3.jpg"
+  },
+  {
+    "id": 80,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [DEF];\n• либо положите на эту карту [VP:6];\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [DEF] on this card; place [VP:6] on this card; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s07_r0c0.jpg"
+  },
+  {
+    "id": 81,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [MAG];\n• либо положите на эту карту [SCI];\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [MAG] on this card; place [SCI] on this card; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s09_r0c2.jpg"
+  },
+  {
+    "id": 82,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [SCI];\n• либо возьмите 1 карту из малой колоды или из колоды законов;\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [SCI] on this card; draw 1 card from the small deck or law deck; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s07_r1c2.jpg"
+  },
+  {
+    "id": 83,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [MAG] и [BONUS_MAG:2];\n• либо положите на эту карту неисчерпаемый камень любого цвета;\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [MAG] and [BONUS_MAG:2] on this card; place [INF:any] on this card; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s07_r1c0.jpg"
+  },
+  {
+    "id": 84,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "Выберите одно:\n• либо положите на эту карту [BONUS_MAG:3];\n• либо возьмите 1 карту из малой колоды или из колоды законов;\n• либо возьмите 4 любых камня из резерва.",
+    "effect": {
+      "timing": "immediate",
+      "summary": "Choose one: place [BONUS_MAG:3] on this card; draw 1 card from the small deck or law deck; or take 4 gems of any color from the reserve.",
+      "mechanizable": true
+    },
+    "source": "s09_r0c0.jpg"
+  },
+  {
+    "id": 85,
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "text": "В конце игры получите [VP:2] за каждую соседнюю карту персонажа.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "2 VP for each character card adjacent to this law.",
+      "mechanizable": true
+    },
+    "source": "s07_r0c1.jpg"
+  },
+  {
+    "id": 86,
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "text": "В конце игры получите [VP:2] за каждую соседнюю карту персонажа.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "2 VP for each character card adjacent to this law.",
+      "mechanizable": true
+    },
+    "source": "s08_r0c2.jpg"
+  },
+  {
+    "id": 87,
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "green",
+      "br": "green"
+    },
+    "text": "В конце игры получите [VP:2] за каждую соседнюю карту персонажа.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "2 VP for each character card adjacent to this law.",
+      "mechanizable": true
+    },
+    "source": "s09_r1c2.jpg"
+  },
+  {
+    "id": 88,
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "text": "В конце игры получите [VP:2] за каждую соседнюю карту персонажа.",
+    "effect": {
+      "timing": "end_game",
+      "summary": "2 VP for each character card adjacent to this law.",
+      "mechanizable": true
+    },
+    "source": "s08_r1c2.jpg"
+  }
+]

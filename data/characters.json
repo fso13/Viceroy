@@ -1,0 +1,3368 @@
+[
+  {
+    "id": 1,
+    "name": "БОЦМАН",
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "infinite",
+          "color": "green"
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s01_r1c1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "ПОСОЛ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "blue",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "bonus_magic",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s03_r0c2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "ТРАВНИЦА",
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "infinite",
+          "color": "yellow"
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s06_r1c1.jpg"
+  },
+  {
+    "id": 4,
+    "name": "НАСТАВНИК",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "blue",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "science",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s06_r0c3.jpg"
+  },
+  {
+    "id": 5,
+    "name": "РАЗВЕДЧИЦА",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 7
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s01_r1c3.jpg"
+  },
+  {
+    "id": 6,
+    "name": "КАНЦЛЕР",
+    "sectors": {
+      "tl": "blue",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r2c2.jpg"
+  },
+  {
+    "id": 7,
+    "name": "СКИТАЛЕЦ",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s06_r1c2.jpg"
+  },
+  {
+    "id": 8,
+    "name": "ПАЛАДИН",
+    "sectors": {
+      "tl": "blue",
+      "tr": "green",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s06_r0c2.jpg"
+  },
+  {
+    "id": 9,
+    "name": "КАНОНИР",
+    "sectors": {
+      "tl": "red",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "defense",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s01_r1c2.jpg"
+  },
+  {
+    "id": 10,
+    "name": "МАРШАЛ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "red",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s03_r0c3.jpg"
+  },
+  {
+    "id": 11,
+    "name": "АРБАЛЕТЧИЦА",
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "defense",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 6
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "science",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s06_r1c3.jpg"
+  },
+  {
+    "id": 12,
+    "name": "ДОЗОРНЫЙ",
+    "sectors": {
+      "tl": "blue",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s06_r0c0.jpg"
+  },
+  {
+    "id": 13,
+    "name": "АРКАНИСТ",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "gems",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s01_r1c0.jpg"
+  },
+  {
+    "id": 14,
+    "name": "ПАЛАЧ",
+    "sectors": {
+      "tl": "blue",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "blue",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s02_r2c1.jpg"
+  },
+  {
+    "id": 15,
+    "name": "ГЕНЕРАЛ",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "attack",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s06_r1c0.jpg"
+  },
+  {
+    "id": 16,
+    "name": "РУДОКОП",
+    "sectors": {
+      "tl": "blue",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 6
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s06_r0c1.jpg"
+  },
+  {
+    "id": 17,
+    "name": "КАПРАЛ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "defense",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s04_r1c2.jpg"
+  },
+  {
+    "id": 18,
+    "name": "ВЕЛЬМОЖА",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "infinite",
+          "color": "blue"
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s05_r2c2.jpg"
+  },
+  {
+    "id": 19,
+    "name": "ЗНАМЕНОСЕЦ",
+    "sectors": {
+      "tl": "red",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "vp",
+              "amount": 2
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r1c0.jpg"
+  },
+  {
+    "id": 20,
+    "name": "ВЕРБОВЩИК",
+    "sectors": {
+      "tl": "blue",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "science",
+              "amount": 2
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 6
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r0c2.jpg"
+  },
+  {
+    "id": 21,
+    "name": "ФЕЯ",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "infinite",
+          "color": "green"
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s04_r0c0.jpg"
+  },
+  {
+    "id": 22,
+    "name": "РАЗБОЙНИК",
+    "sectors": {
+      "tl": "blue",
+      "tr": "green",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "vp",
+              "amount": 2
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "red",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s05_r1c1.jpg"
+  },
+  {
+    "id": 23,
+    "name": "КАСТЕЛЯН",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s02_r1c2.jpg"
+  },
+  {
+    "id": 24,
+    "name": "АГЕНТ",
+    "sectors": {
+      "tl": "blue",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s02_r1c3.jpg"
+  },
+  {
+    "id": 25,
+    "name": "БЕРСЕРКЕР",
+    "sectors": {
+      "tl": "red",
+      "tr": "green",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s04_r1c3.jpg"
+  },
+  {
+    "id": 26,
+    "name": "ОХОТНИЦА",
+    "sectors": {
+      "tl": "green",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "infinite",
+          "color": "red"
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "science",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s05_r2c3.jpg"
+  },
+  {
+    "id": 27,
+    "name": "АССАСИН",
+    "sectors": {
+      "tl": "red",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r2c3.jpg"
+  },
+  {
+    "id": 28,
+    "name": "МЕЧНИК",
+    "sectors": {
+      "tl": "blue",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "vp",
+              "amount": 2
+            },
+            {
+              "type": "science",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r0c0.jpg"
+  },
+  {
+    "id": 29,
+    "name": "СТРАТЕГ",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "bonus_magic",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s04_r1c1.jpg"
+  },
+  {
+    "id": 30,
+    "name": "ЕГЕРЬ",
+    "sectors": {
+      "tl": "blue",
+      "tr": "red",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "defense",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s05_r1c0.jpg"
+  },
+  {
+    "id": 31,
+    "name": "КРОНПРИНЦ",
+    "sectors": {
+      "tl": "red",
+      "tr": "blue",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "gems",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s02_r1c1.jpg"
+  },
+  {
+    "id": 32,
+    "name": "КАПИТАН",
+    "sectors": {
+      "tl": "blue",
+      "tr": "red",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "gems",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "magic",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s02_r0c1.jpg",
+    "verified_against": "rules_pdf_2nd_edition_example"
+  },
+  {
+    "id": 33,
+    "name": "МАРКГРАФ",
+    "sectors": {
+      "tl": "green",
+      "tr": "blue",
+      "bl": "red",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s03_r1c2.jpg"
+  },
+  {
+    "id": 34,
+    "name": "ОТШЕЛЬНИК",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      }
+    ],
+    "source": "s05_r0c0.jpg"
+  },
+  {
+    "id": 35,
+    "name": "СТРАЖ",
+    "sectors": {
+      "tl": "green",
+      "tr": "blue",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "red",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s04_r0c1.jpg"
+  },
+  {
+    "id": 36,
+    "name": "СНАЙПЕР",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "infinite",
+          "color": "blue"
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s02_r0c3.jpg"
+  },
+  {
+    "id": 37,
+    "name": "ОРУЖЕЙНИК",
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "defense",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "infinite",
+          "color": "blue"
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 6
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "red",
+          "amount": 4
+        }
+      }
+    ],
+    "source": "s03_r1c3.jpg"
+  },
+  {
+    "id": 38,
+    "name": "ДРУИД",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s05_r1c3.jpg"
+  },
+  {
+    "id": 39,
+    "name": "ВИТЯЗЬ",
+    "sectors": {
+      "tl": "green",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 7
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "green",
+          "amount": 4
+        }
+      }
+    ],
+    "source": "s04_r0c3.jpg"
+  },
+  {
+    "id": 40,
+    "name": "АДМИРАЛ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "blue",
+          "amount": 4
+        }
+      }
+    ],
+    "source": "s01_r2c3.jpg",
+    "id_note": "assigned as missing id 40; number on card hard to OCR"
+  },
+  {
+    "id": 41,
+    "name": "ИНСПЕКТОР",
+    "sectors": {
+      "tl": "green",
+      "tr": "yellow",
+      "bl": "yellow",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "green",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s03_r0c1.jpg"
+  },
+  {
+    "id": 42,
+    "name": "ЛАЗУТЧИК",
+    "sectors": {
+      "tl": "red",
+      "tr": "green",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 7
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s05_r1c2.jpg"
+  },
+  {
+    "id": 43,
+    "name": "ИЗОБРЕТАТЕЛЬ",
+    "sectors": {
+      "tl": "green",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "vp",
+              "amount": 2
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "infinite",
+          "color": "yellow"
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s04_r0c2.jpg"
+  },
+  {
+    "id": 44,
+    "name": "ГУБЕРНАТОР",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s01_r2c1.jpg"
+  },
+  {
+    "id": 45,
+    "name": "СЕРЖАНТ",
+    "sectors": {
+      "tl": "green",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 12
+        }
+      }
+    ],
+    "source": "s03_r0c0.jpg"
+  },
+  {
+    "id": 46,
+    "name": "ДИВЕРСАНТ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "green",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "attack",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "infinite",
+              "color": "yellow"
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s05_r0c1.jpg"
+  },
+  {
+    "id": 47,
+    "name": "ПИВОВАР",
+    "sectors": {
+      "tl": "green",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "yellow",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s03_r2c1.jpg"
+  },
+  {
+    "id": 48,
+    "name": "ЮНГА",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "gems",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "green",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s01_r2c2.jpg"
+  },
+  {
+    "id": 49,
+    "name": "ВЕДЬМА",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "science",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s06_r2c2.jpg"
+  },
+  {
+    "id": 50,
+    "name": "ВОЕВОДА",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 5
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s04_r1c0.jpg"
+  },
+  {
+    "id": 51,
+    "name": "РУЛЕВОЙ",
+    "sectors": {
+      "tl": "green",
+      "tr": "blue",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "yellow",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s01_r0c3.jpg"
+  },
+  {
+    "id": 52,
+    "name": "РЕГЕНТ",
+    "sectors": {
+      "tl": "green",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "infinite",
+          "color": "red"
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s03_r1c1.jpg"
+  },
+  {
+    "id": 53,
+    "name": "СЛЕДОПЫТ",
+    "sectors": {
+      "tl": "red",
+      "tr": "green",
+      "bl": "green",
+      "br": "green"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 5
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s05_r0c3.jpg"
+  },
+  {
+    "id": 54,
+    "name": "КОЛДУН",
+    "sectors": {
+      "tl": "red",
+      "tr": "yellow",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "magic",
+              "amount": 1
+            },
+            {
+              "type": "bonus_magic",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "magic",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s04_r2c2.jpg"
+  },
+  {
+    "id": 55,
+    "name": "ГОЛОВОРЕЗ",
+    "sectors": {
+      "tl": "green",
+      "tr": "green",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "gems",
+          "amount": 4
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 3
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s01_r0c0.jpg"
+  },
+  {
+    "id": 56,
+    "name": "ОТРАВИТЕЛЬ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 4
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s03_r2c3.jpg"
+  },
+  {
+    "id": 57,
+    "name": "ЧАРОДЕЙКА",
+    "sectors": {
+      "tl": "green",
+      "tr": "yellow",
+      "bl": "green",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 5
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s05_r0c2.jpg"
+  },
+  {
+    "id": 58,
+    "name": "ВЕТЕРАН",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "green",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s04_r2c3.jpg"
+  },
+  {
+    "id": 59,
+    "name": "СТАРПОМ",
+    "sectors": {
+      "tl": "green",
+      "tr": "yellow",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "gems",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "card",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 5
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s01_r0c1.jpg"
+  },
+  {
+    "id": 60,
+    "name": "БАРОН",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "green",
+      "bl": "yellow",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "infinite",
+          "color": "green"
+        }
+      },
+      {
+        "level": 2,
+        "cost": "red",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 3
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "green",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s03_r1c0.jpg"
+  },
+  {
+    "id": 61,
+    "name": "СКУПЩИК",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "green",
+      "br": "yellow"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "yellow",
+        "reward": {
+          "type": "vp",
+          "amount": 3
+        }
+      },
+      {
+        "level": 2,
+        "cost": "yellow",
+        "reward": {
+          "type": "bonus_magic",
+          "amount": 2
+        }
+      },
+      {
+        "level": 3,
+        "cost": "green",
+        "reward": {
+          "type": "bonus_circle",
+          "color": "blue",
+          "amount": 2
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "vp",
+          "amount": 10
+        }
+      }
+    ],
+    "source": "s06_r2c3.jpg"
+  },
+  {
+    "id": 62,
+    "name": "ПОЛКОВНИК",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "blue",
+      "bl": "blue",
+      "br": "blue"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "infinite",
+          "color": "red"
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "science",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      },
+      {
+        "level": 4,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 8
+        }
+      }
+    ],
+    "source": "s04_r2c1.jpg"
+  },
+  {
+    "id": 63,
+    "name": "ЛАНДСКНЕХТ",
+    "sectors": {
+      "tl": "green",
+      "tr": "red",
+      "bl": "red",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "red",
+        "reward": {
+          "type": "infinite",
+          "color": "yellow"
+        }
+      },
+      {
+        "level": 2,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 3,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "defense",
+              "amount": 1
+            },
+            {
+              "type": "bonus_circle",
+              "color": "blue",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "level": 4,
+        "cost": "yellow",
+        "reward": {
+          "type": "science",
+          "amount": 2
+        }
+      }
+    ],
+    "source": "s01_r0c2.jpg"
+  },
+  {
+    "id": 64,
+    "name": "ВОЖДЬ",
+    "sectors": {
+      "tl": "yellow",
+      "tr": "red",
+      "bl": "yellow",
+      "br": "red"
+    },
+    "levels": [
+      {
+        "level": 1,
+        "cost": "green",
+        "reward": {
+          "type": "card",
+          "amount": 1
+        }
+      },
+      {
+        "level": 2,
+        "cost": "blue",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "attack",
+              "amount": 1
+            },
+            {
+              "type": "gems",
+              "amount": 2
+            }
+          ]
+        }
+      },
+      {
+        "level": 3,
+        "cost": "blue",
+        "reward": {
+          "type": "vp",
+          "amount": 7
+        }
+      },
+      {
+        "level": 4,
+        "cost": "red",
+        "reward": {
+          "type": "multi",
+          "parts": [
+            {
+              "type": "science",
+              "amount": 1
+            },
+            {
+              "type": "vp",
+              "amount": 5
+            }
+          ]
+        }
+      }
+    ],
+    "source": "s03_r2c2.jpg"
+  }
+]

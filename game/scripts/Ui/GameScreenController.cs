@@ -1,0 +1,1248 @@
+using Godot;
+using Namestnik.Core;
+using Namestnik.Core.Commands;
+using Namestnik.Core.Models;
+using Namestnik.Net;
+
+namespace Namestnik.Ui;
+
+public partial class GameScreenController : Control
+{
+	Label _phaseLabel = null!;
+	Label _infoLabel = null!;
+	Label _pyramidStatsLabel = null!;
+	HBoxContainer _gemStatusRow = null!;
+	VBoxContainer _pyramidCards = null!;
+	HBoxContainer _auctionCards = null!;
+	RichTextLabel _log = null!;
+	HBoxContainer _bidRow = null!;
+	HBoxContainer _choiceRow = null!;
+	HBoxContainer _passGemsRow = null!;
+	HBoxContainer _rewardRow = null!;
+	HBoxContainer _tokenSwapRow = null!;
+	HBoxContainer _handBox = null!;
+	HBoxContainer _level5Row = null!;
+	HBoxContainer _lawPromptRow = null!;
+	Button _passAuctionButton = null!;
+	Button _passDevButton = null!;
+	Button _attackButton = null!;
+	Button _undoButton = null!;
+	Button _cancelBuildButton = null!;
+	CardZoomOverlay _zoom = null!;
+
+	readonly HashSet<int> _lawReturnSelection = new();
+	readonly HashSet<int> _law72TuckSelection = new();
+
+	/// <summary>Hand index selected for multi-step play (placement / law target).</summary>
+	int? _selectedHandIndex;
+
+	/// <summary>True while a hand card is selected and awaiting placement/target.</summary>
+	bool _buildMode;
+
+	static readonly Vector2 ThumbAuction = new(88, 88);
+	static Vector2 ThumbPyramid = new(72, 72);
+	static readonly Vector2 ThumbHand = new(108, 108);
+	const int CardGap = 2;
+
+	public override void _Ready()
+	{
+		_phaseLabel = GetNode<Label>("%PhaseLabel");
+		_infoLabel = GetNode<Label>("%InfoLabel");
+		_pyramidStatsLabel = GetNode<Label>("%PyramidStatsLabel");
+		_gemStatusRow = GetNode<HBoxContainer>("%GemStatusRow");
+		_pyramidCards = GetNode<VBoxContainer>("%PyramidCards");
+		_auctionCards = GetNode<HBoxContainer>("%AuctionCards");
+		_log = GetNode<RichTextLabel>("%Log");
+		_bidRow = GetNode<HBoxContainer>("%BidRow");
+		_choiceRow = GetNode<HBoxContainer>("%ChoiceRow");
+		_passGemsRow = GetNode<HBoxContainer>("%PassGemsRow");
+		_rewardRow = GetNode<HBoxContainer>("%RewardRow");
+		_tokenSwapRow = GetNode<HBoxContainer>("%TokenSwapRow");
+		_handBox = GetNode<HBoxContainer>("%HandBox");
+		_level5Row = GetNode<HBoxContainer>("%Level5Row");
+		_lawPromptRow = GetNode<HBoxContainer>("%LawPromptRow");
+		_passAuctionButton = GetNode<Button>("%PassAuctionButton");
+		_passDevButton = GetNode<Button>("%PassDevButton");
+		_attackButton = GetNode<Button>("%AttackButton");
+		_undoButton = GetNode<Button>("%UndoButton");
+		_cancelBuildButton = GetNode<Button>("%CancelBuildButton");
+
+		_passAuctionButton.Pressed += OnPassAuction;
+		_passDevButton.Pressed += OnPassDev;
+		_attackButton.Pressed += OnAttack;
+		_undoButton.Pressed += OnUndo;
+		_cancelBuildButton.Pressed += OnCancelBuild;
+		GetNode<Button>("%MenuButton").Pressed += OnMenu;
+		GetNode<Button>("%Level5Bundle").Pressed += () => ChooseLevel5(false);
+		GetNode<Button>("%Level5Fifteen").Pressed += () => ChooseLevel5(true);
+
+		GetNode<Button>("%BidBlue").Pressed += () => Bid(GemColor.Blue);
+		GetNode<Button>("%BidRed").Pressed += () => Bid(GemColor.Red);
+		GetNode<Button>("%BidGreen").Pressed += () => Bid(GemColor.Green);
+		GetNode<Button>("%BidYellow").Pressed += () => Bid(GemColor.Yellow);
+
+		StyleGemBidButton(GetNode<Button>("%BidBlue"), GemColor.Blue);
+		StyleGemBidButton(GetNode<Button>("%BidRed"), GemColor.Red);
+		StyleGemBidButton(GetNode<Button>("%BidGreen"), GemColor.Green);
+		StyleGemBidButton(GetNode<Button>("%BidYellow"), GemColor.Yellow);
+
+		_zoom = new CardZoomOverlay();
+		AddChild(_zoom);
+
+		_handBox.AddThemeConstantOverride("separation", CardGap);
+		_auctionCards.AddThemeConstantOverride("separation", 8);
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.SessionEvent += AppendLog;
+		Refresh();
+	}
+
+	static void StyleGemBidButton(Button button, GemColor color)
+	{
+		button.Icon = GemIcons.Get(color);
+		button.ExpandIcon = true;
+		button.AddThemeConstantOverride("icon_max_width", 28);
+		button.Text = "";
+		button.TooltipText = GemIcons.ColorName(color);
+		button.CustomMinimumSize = new Vector2(44, 40);
+	}
+
+	void ShowCardZoom(Texture2D texture, string title, string details) =>
+		_zoom.ShowCard(texture, title, details);
+
+	void BindInspect(CardThumb thumb, Texture2D texture, string title, string details) =>
+		thumb.EnableInspect(() => ShowCardZoom(texture, title, details));
+
+	void ClearBuildDraft()
+	{
+		_selectedHandIndex = null;
+		_buildMode = false;
+		_law72TuckSelection.Clear();
+	}
+
+	void SelectHandCard(int handIndex)
+	{
+		_selectedHandIndex = handIndex;
+		_buildMode = true;
+		_law72TuckSelection.Clear();
+		Refresh();
+	}
+
+	void Refresh()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var engine = session.Session?.Engine;
+		if (engine is null)
+		{
+			_phaseLabel.Text = session.ActiveMode == GameMode.Client
+				? "Клиент (ожидание снапшота от хоста)"
+				: "Нет активной партии";
+			_infoLabel.Text = $"Режим: {session.ActiveMode}";
+			ClearContainer(_pyramidCards);
+			ClearContainer(_auctionCards);
+			ClearContainer(_handBox);
+			SetAuctionUi(false, false);
+			_handBox.Visible = false;
+			_level5Row.Visible = false;
+			_lawPromptRow.Visible = false;
+			_passGemsRow.Visible = false;
+			_rewardRow.Visible = false;
+			_tokenSwapRow.Visible = false;
+			_cancelBuildButton.Visible = false;
+			UpdateUndoButton(session);
+			return;
+		}
+
+		var s = engine.State;
+		var cards = session.Cards;
+		if (s.Phase == TurnPhase.GameOver && s.Result is { } result)
+		{
+			_phaseLabel.Text = result.IsDraw ? "Ничья" : $"Победитель: {result.Scores.First(x => result.WinnerIds.Contains(x.PlayerId)).DisplayName}";
+			_infoLabel.Text = string.Join("\n", result.Scores.Select(sc => sc.ToString()));
+			ClearContainer(_pyramidCards);
+			ClearContainer(_auctionCards);
+			SetAuctionUi(false, false);
+			_handBox.Visible = false;
+			_level5Row.Visible = false;
+			_lawPromptRow.Visible = false;
+			_passGemsRow.Visible = false;
+			_rewardRow.Visible = false;
+			_tokenSwapRow.Visible = false;
+			_cancelBuildButton.Visible = false;
+			_passDevButton.Disabled = true;
+			ClearBuildDraft();
+			UpdateUndoButton(session);
+			return;
+		}
+
+		_phaseLabel.Text = $"Ход {s.Turn}/{GameState.MaxTurns} — {s.Phase}" +
+			(s.FinalTurnInProgress ? " [ФИНАЛ]" : "") +
+			(s.Phase == TurnPhase.Auction
+				? $" / круг {(int)s.AuctionRound} / {s.AuctionSubPhase}"
+				: "") +
+			(s.Phase == TurnPhase.Development
+				? $" / раунд {s.DevelopmentRound} / {s.DevelopmentSubPhase}"
+				: "");
+
+		var localId = session.Session!.LocalPlayerId;
+		var local = s.GetPlayer(localId);
+
+		RebuildAuctionBoard(s, cards);
+
+		var sealedMark = s.Phase == TurnPhase.Auction
+			? (s.SealedBids.ContainsKey(localId) ? "ставка принята" : "ждём ставку")
+			: (s.SealedDevActions.ContainsKey(localId) || local.ActedThisDevelopmentRound
+				? "действие принято"
+				: "ждём действие");
+
+		_infoLabel.Text =
+			$"{local.DisplayName} | рука:{local.Hand.Count} | пирамида:{local.Pyramid.AllCards.Count()} " +
+			$"(VP:{local.VictoryPointTokens} Sci:{local.ScienceTokens} Mag:{local.MagicTokens} Def:{local.DefenseTokens})\n" +
+			$"Колоды big={s.BigDeck.Count} small={s.SmallDeck.Count} laws={s.LawDeck.Count} | {sealedMark}";
+
+		RebuildGemStatusRow(local);
+
+		var canBid = s.Phase == TurnPhase.Auction
+			&& s.AuctionSubPhase == AuctionSubPhase.CollectingBids
+			&& !local.HasPassedAuction
+			&& !local.AcquiredAuctionCardThisTurn
+			&& !s.SealedBids.ContainsKey(localId);
+
+		var canChoose = s.Phase == TurnPhase.Auction
+			&& s.AuctionSubPhase == AuctionSubPhase.ChoosingCards
+			&& s.HasPendingChoice(localId);
+
+		var canPassGems = s.Phase == TurnPhase.Auction
+			&& s.AuctionSubPhase == AuctionSubPhase.ClaimingPassGems
+			&& s.PendingPassGems?.PlayerId == localId;
+
+		var canDev = s.Phase == TurnPhase.Development
+			&& s.DevelopmentSubPhase == DevelopmentSubPhase.CollectingActions
+			&& !local.HasPassedDevelopment
+			&& !local.ActedThisDevelopmentRound
+			&& !s.SealedDevActions.ContainsKey(localId);
+
+		var canLevel5 = s.Phase == TurnPhase.Development
+			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ChoosingLevel5Reward
+			&& s.PendingLevel5?.PlayerId == localId;
+
+		var canReward = s.Phase == TurnPhase.Development
+			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ChoosingReward
+			&& s.PendingRewardChoice?.PlayerId == localId;
+
+		var canLaw = s.Phase == TurnPhase.Development
+			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ResolvingLaw
+			&& s.PendingLaw?.PlayerId == localId;
+
+		var canTokenSwap = s.Phase == TurnPhase.Development
+			&& s.PendingTokenSwap?.PlayerId == localId
+			&& s.PendingLaw is null;
+
+		if (!canDev)
+		{
+			ClearBuildDraft();
+			_pendingTuckFreeDrop = null;
+		}
+
+		RebuildPyramidBoard(local, cards, canDev);
+
+		SetAuctionUi(canBid, canChoose);
+		_passDevButton.Disabled = !canDev;
+		_handBox.Visible = true;
+		_level5Row.Visible = canLevel5;
+		_lawPromptRow.Visible = canLaw;
+		_passGemsRow.Visible = canPassGems;
+		_rewardRow.Visible = canReward;
+		_tokenSwapRow.Visible = canTokenSwap || (s.PendingTokenSwap?.PlayerId == localId);
+		_cancelBuildButton.Visible = canDev && _buildMode;
+
+		RebuildChoiceButtons(canChoose ? s.PendingCardChoices.First(c => c.PlayerId == localId) : null, cards);
+		RebuildPassGems(canPassGems ? s.PendingPassGems : null);
+		RebuildRewardChoice(canReward ? s.PendingRewardChoice : null);
+		RebuildHand(local, cards, canDev);
+		RebuildLawPrompt(canLaw ? s : null, local, cards);
+		RebuildTokenSwap(
+			s.PendingTokenSwap?.PlayerId == localId ? s : null,
+			local,
+			cards,
+			swapActive: canTokenSwap);
+		UpdateUndoButton(session);
+	}
+
+	void RebuildGemStatusRow(PlayerState local)
+	{
+		ClearContainer(_gemStatusRow);
+		_gemStatusRow.AddChild(new Label { Text = "За ширмой:" });
+		foreach (GemColor color in Enum.GetValues<GemColor>())
+		{
+			_gemStatusRow.AddChild(GemIcons.MakeRect(color, 22f));
+			_gemStatusRow.AddChild(new Label
+			{
+				Text = $"×{local.Screen[color]}",
+				VerticalAlignment = VerticalAlignment.Center
+			});
+		}
+
+		_gemStatusRow.AddChild(new Label { Text = $"  атака ×{local.Screen.AttackTokens}" });
+	}
+
+	void UpdateUndoButton(GameSessionAutoload session)
+	{
+		var solo = session.ActiveMode == GameMode.Solo;
+		var canUndo = solo && (session.Session?.CanUndo == true
+			|| session.Session?.Engine?.CanUndo == true);
+		_undoButton.Visible = solo && canUndo;
+		_undoButton.Disabled = !canUndo;
+	}
+
+	void SetAuctionUi(bool canBid, bool canChoose)
+	{
+		_bidRow.Visible = canBid || canChoose;
+		_passAuctionButton.Disabled = !canBid;
+		_attackButton.Disabled = !canBid;
+		foreach (var color in new[] { "BidBlue", "BidRed", "BidGreen", "BidYellow" })
+			GetNode<Button>($"%{color}").Disabled = !canBid;
+		_choiceRow.Visible = canChoose;
+	}
+
+	static void ClearContainer(Node node)
+	{
+		foreach (var child in node.GetChildren())
+			child.QueueFree();
+	}
+
+	/// <summary>After dropping law #74 on a slot, wait for free-card pick.</summary>
+	(int HandIndex, int Level, int Index)? _pendingTuckFreeDrop;
+
+	void RebuildPyramidBoard(PlayerState local, CardDatabase? cards, bool canDev)
+	{
+		ClearContainer(_pyramidCards);
+		_pyramidStatsLabel.Text = PyramidStats.Format(local);
+
+		var cardCount = Math.Max(1, local.Pyramid.AllCards.Count());
+		var height = Math.Max(1, local.Pyramid.Height);
+		// Fit whole pyramid on screen: shrink with more cards / taller stack (no scroll).
+		var size = height >= 4 || cardCount > 12 ? 48f
+			: cardCount <= 6 ? 72f
+			: cardCount <= 10 ? 60f
+			: 52f;
+		ThumbPyramid = new Vector2(size, size);
+
+		var legal = canDev ? local.Pyramid.LegalPlacements() : new List<(int Level, int Index)>();
+		var legalSet = legal.ToHashSet();
+		var maxLevel = Math.Max(1, Math.Max(local.Pyramid.Height, legal.Count == 0 ? 1 : legal.Max(x => x.Level)));
+
+		_pyramidCards.AddChild(new Label
+		{
+			Text = canDev
+				? "Перетащите карту из руки на зелёный слот"
+				: "Пирамида"
+		});
+
+		if (_pendingTuckFreeDrop is { } pending && canDev)
+			RebuildTuckFreePicker(local, cards, pending);
+
+		for (var level = maxLevel; level >= 1; level--)
+		{
+			var levelBox = new VBoxContainer();
+			levelBox.AddThemeConstantOverride("separation", 2);
+			levelBox.AddChild(new Label { Text = $"Уровень {level}" });
+			var rowBox = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+			rowBox.AddThemeConstantOverride("separation", CardGap);
+
+			if (level == 1)
+				BuildBaseRow(rowBox, local, cards, canDev, legalSet);
+			else
+				BuildUpperRow(rowBox, local, cards, canDev, legalSet, level);
+
+			levelBox.AddChild(rowBox);
+			_pyramidCards.AddChild(levelBox);
+		}
+	}
+
+	void BuildBaseRow(
+		HBoxContainer rowBox,
+		PlayerState local,
+		CardDatabase? cards,
+		bool canDev,
+		HashSet<(int Level, int Index)> legalSet)
+	{
+		var baseCount = local.Pyramid.BaseCount;
+		if (canDev && legalSet.Contains((1, 0)))
+			rowBox.AddChild(MakeDropSlot(local, cards, 1, 0, baseCount == 0 ? "Старт" : "← L1"));
+
+		if (local.Pyramid.Rows.TryGetValue(1, out var row))
+		{
+			foreach (var pc in row.OrderBy(c => c.Index))
+				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
+		}
+
+		if (canDev && baseCount > 0 && legalSet.Contains((1, baseCount)))
+			rowBox.AddChild(MakeDropSlot(local, cards, 1, baseCount, "L1 →"));
+	}
+
+	void BuildUpperRow(
+		HBoxContainer rowBox,
+		PlayerState local,
+		CardDatabase? cards,
+		bool canDev,
+		HashSet<(int Level, int Index)> legalSet,
+		int level)
+	{
+		if (!local.Pyramid.Rows.TryGetValue(level - 1, out var below) || below.Count < 2)
+		{
+			rowBox.AddChild(new Label { Text = "(нужны 2 карты ниже)" });
+			return;
+		}
+
+		var existing = local.Pyramid.Rows.TryGetValue(level, out var upper)
+			? upper.ToDictionary(c => c.Index)
+			: new Dictionary<int, PyramidCard>();
+
+		for (var i = 0; i < below.Count - 1; i++)
+		{
+			if (existing.TryGetValue(i, out var pc))
+			{
+				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
+			}
+			else if (canDev && legalSet.Contains((level, i)))
+			{
+				rowBox.AddChild(MakeDropSlot(local, cards, level, i, $"L{level}"));
+			}
+			else
+			{
+				var spacer = new Control { CustomMinimumSize = ThumbPyramid + new Vector2(4, 4) };
+				rowBox.AddChild(spacer);
+			}
+		}
+	}
+
+	CardThumb MakePyramidCardThumb(PlayerState local, CardDatabase? cards, bool canDev, PyramidCard pc)
+	{
+		var tip = cards is null
+			? $"#{pc.Card.DefinitionId}"
+			: CardTooltips.ForPyramidCard(cards, pc);
+		var thumb = new CardThumb();
+		thumb.Setup(
+			CardArt.Get(pc.Card.DefinitionId),
+			CardShortName(pc.Card, cards),
+			tip,
+			ThumbPyramid,
+			showCaption: true);
+		thumb.SetTokenBadges(PyramidStats.TokenBadges(pc));
+		BindInspect(thumb, CardArt.Get(pc.Card.DefinitionId), CardShortName(pc.Card, cards), tip);
+
+		if (canDev)
+		{
+			thumb.EnableCardDrop(
+				handIndex => CanDropOnPyramidCard(local, cards, handIndex, pc),
+				handIndex => DropOnPyramidCard(local, handIndex, pc));
+		}
+
+		return thumb;
+	}
+
+	PyramidDropSlot MakeDropSlot(
+		PlayerState local,
+		CardDatabase? cards,
+		int level,
+		int index,
+		string caption)
+	{
+		var slot = new PyramidDropSlot();
+		var tip = $"Слот ур.{level}" + (level == 1
+			? (index == 0 ? " (слева)" : " (справа)")
+			: $" (опора {index})");
+		slot.Configure(
+			level,
+			index,
+			caption,
+			ThumbPyramid,
+			tip,
+			handIndex => CanDropOnSlot(local, cards, handIndex, level),
+			handIndex => DropOnSlot(local, cards, handIndex, level, index));
+		return slot;
+	}
+
+	bool CanDropOnSlot(PlayerState local, CardDatabase? cards, int handIndex, int level)
+	{
+		if (handIndex < 0 || handIndex >= local.Hand.Count)
+			return false;
+		var card = local.Hand[handIndex];
+		if (card.Kind == CardKind.Law && level == 5)
+			return false;
+		if (card.Kind == CardKind.Law && LawIds.NeedsTargetOnPlay(card.DefinitionId)
+		    && card.DefinitionId is LawIds.Replace or LawIds.TuckUnderCharacter)
+			return false; // drop onto a card instead
+		if (card.Kind == CardKind.Character && cards is not null)
+		{
+			var def = cards.GetCharacter(card.DefinitionId);
+			if (!PlayCostHelper.CanAfford(local, def, level))
+				return false;
+		}
+
+		return true;
+	}
+
+	bool CanDropOnPyramidCard(PlayerState local, CardDatabase? cards, int handIndex, PyramidCard target)
+	{
+		if (handIndex < 0 || handIndex >= local.Hand.Count)
+			return false;
+		var card = local.Hand[handIndex];
+		if (card.Kind != CardKind.Law)
+			return false;
+		if (card.DefinitionId == LawIds.Replace)
+			return true;
+		if (card.DefinitionId == LawIds.TuckUnderCharacter)
+			return target.Card.Kind == CardKind.Character;
+		if (card.DefinitionId == LawIds.TuckFreeCard && _pendingTuckFreeDrop is not null)
+			return local.Pyramid.IsFree(target);
+		return false;
+	}
+
+	void DropOnSlot(PlayerState local, CardDatabase? cards, int handIndex, int level, int index)
+	{
+		if (!CanDropOnSlot(local, cards, handIndex, level))
+			return;
+
+		var card = local.Hand[handIndex];
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+
+		if (card.Kind == CardKind.Law && card.DefinitionId == LawIds.TuckFreeCard)
+		{
+			_pendingTuckFreeDrop = (handIndex, level, index);
+			ClearBuildDraft();
+			Refresh();
+			return;
+		}
+
+		IReadOnlyList<int>? extras = null;
+		if (card.Kind == CardKind.Law && card.DefinitionId == LawIds.TuckFromHand)
+			extras = _law72TuckSelection.Where(x => x != handIndex).ToList();
+
+		_pendingTuckFreeDrop = null;
+		ClearBuildDraft();
+		session.Submit(new PlayCardCommand(pid, handIndex, level, index, ExtraHandIndices: extras));
+		Refresh();
+	}
+
+	void DropOnPyramidCard(PlayerState local, int handIndex, PyramidCard target)
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+		var card = local.Hand[handIndex];
+
+		if (card.DefinitionId == LawIds.TuckFreeCard && _pendingTuckFreeDrop is { } pending)
+		{
+			if (pending.HandIndex != handIndex)
+				return;
+			if (!local.Pyramid.IsFree(target))
+				return;
+			session.Submit(new PlayCardCommand(
+				pid,
+				pending.HandIndex,
+				pending.Level,
+				pending.Index,
+				LawTargetInstanceId: target.Card.InstanceId));
+			_pendingTuckFreeDrop = null;
+			ClearBuildDraft();
+			Refresh();
+			return;
+		}
+
+		if (card.DefinitionId is not (LawIds.Replace or LawIds.TuckUnderCharacter))
+			return;
+		if (card.DefinitionId == LawIds.TuckUnderCharacter && target.Card.Kind != CardKind.Character)
+			return;
+
+		_pendingTuckFreeDrop = null;
+		ClearBuildDraft();
+		session.Submit(new PlayCardCommand(
+			pid, handIndex, 1, 0, LawTargetInstanceId: target.Card.InstanceId));
+		Refresh();
+	}
+
+	void RebuildTuckFreePicker(PlayerState local, CardDatabase? cards, (int HandIndex, int Level, int Index) pending)
+	{
+		var box = new HBoxContainer();
+		box.AddChild(new Label { Text = $"#{LawIds.TuckFreeCard}: выберите свободную карту или перетащите закон на неё:" });
+		foreach (var free in local.Pyramid.FreeCards())
+		{
+			var name = CardShortName(free.Card, cards);
+			var fid = free.Card.InstanceId;
+			var btn = new Button { Text = $"↓{name}" };
+			btn.Pressed += () =>
+			{
+				var session = GetNode<GameSessionAutoload>("/root/GameSession");
+				session.Submit(new PlayCardCommand(
+					session.Session?.LocalPlayerId ?? 0,
+					pending.HandIndex,
+					pending.Level,
+					pending.Index,
+					LawTargetInstanceId: fid));
+				_pendingTuckFreeDrop = null;
+				ClearBuildDraft();
+				Refresh();
+			};
+			box.AddChild(btn);
+		}
+
+		var cancel = new Button { Text = "Отмена слота" };
+		cancel.Pressed += () =>
+		{
+			_pendingTuckFreeDrop = null;
+			Refresh();
+		};
+		box.AddChild(cancel);
+		_pyramidCards.AddChild(box);
+	}
+
+	void RebuildAuctionBoard(GameState s, CardDatabase? cards)
+	{
+		ClearContainer(_auctionCards);
+		foreach (var slot in s.AuctionSlots)
+		{
+			var col = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+			col.AddThemeConstantOverride("separation", CardGap);
+
+			CardThumb MakeAuctionThumb(int? id, string emptyTag)
+			{
+				if (id is not int cid)
+				{
+					var empty = new CardThumb();
+					empty.Setup(CardArt.Back(), emptyTag, "Пусто", ThumbAuction, showCaption: false);
+					empty.Modulate = new Color(1, 1, 1, 0.35f);
+					return empty;
+				}
+
+				var tip = cards is null
+					? $"#{cid}"
+					: CardTooltips.ForCard(cards, CardKind.Character, cid);
+				var name = CardShortName(
+					new CardInstance { InstanceId = 0, Kind = CardKind.Character, DefinitionId = cid },
+					cards);
+				var thumb = new CardThumb();
+				thumb.Setup(CardArt.Get(cid), name, tip, ThumbAuction, showCaption: true);
+				BindInspect(thumb, CardArt.Get(cid), name, tip);
+				return thumb;
+			}
+
+			col.AddChild(MakeAuctionThumb(slot.CardAtTip, "↑"));
+
+			var gem = GemIcons.MakeRect(slot.Color, 36f);
+			gem.TooltipText = $"Рынок: {GemIcons.ColorName(slot.Color)}";
+			col.AddChild(gem);
+
+			col.AddChild(MakeAuctionThumb(slot.CardAtBase, "↓"));
+			_auctionCards.AddChild(col);
+		}
+	}
+
+	static string CardShortName(CardInstance card, CardDatabase? cards)
+	{
+		if (card.Kind == CardKind.Character && cards?.Characters.TryGetValue(card.DefinitionId, out var ch) == true)
+			return ch.Name;
+		if (card.Kind == CardKind.Law)
+			return $"Закон #{card.DefinitionId}";
+		return $"#{card.DefinitionId}";
+	}
+
+	void RebuildChoiceButtons(PendingCardChoice? pending, CardDatabase? cards)
+	{
+		ClearContainer(_choiceRow);
+
+		if (pending is null)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		foreach (var id in pending.Options)
+		{
+			var tip = cards is null ? $"#{id}" : CardTooltips.ForCard(cards, CardKind.Character, id);
+			var thumb = new CardThumb();
+			_choiceRow.AddChild(thumb);
+			var captured = id;
+			var name = CardShortName(new CardInstance { InstanceId = 0, Kind = CardKind.Character, DefinitionId = id }, cards);
+			thumb.Setup(
+				CardArt.Get(id),
+				$"Взять\n{name}",
+				tip,
+				ThumbHand,
+				() =>
+				{
+					session.Submit(new ChooseAuctionCardCommand(session.Session?.LocalPlayerId ?? 0, captured));
+					Refresh();
+				});
+			BindInspect(thumb, CardArt.Get(id), name, tip);
+		}
+	}
+
+	void RebuildPassGems(PendingPassGems? pending)
+	{
+		foreach (var child in _passGemsRow.GetChildren())
+			child.QueueFree();
+
+		if (pending is null)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+		_passGemsRow.AddChild(new Label
+		{
+			Text = $"Камни за пас ({pending.Picked.Count}/{pending.Amount}):"
+		});
+
+		foreach (GemColor color in Enum.GetValues<GemColor>())
+		{
+			var c = color;
+			var btn = MakeGemButton(c, disabled: pending.Picked.Count >= pending.Amount);
+			btn.Pressed += () =>
+			{
+				session.Submit(new ClaimPassGemsCommand(pid, Color: c));
+				Refresh();
+			};
+			_passGemsRow.AddChild(btn);
+		}
+
+		var confirm = new Button { Text = "Подтвердить" };
+		confirm.Pressed += () =>
+		{
+			session.Submit(new ClaimPassGemsCommand(pid, Confirm: true));
+			Refresh();
+		};
+		_passGemsRow.AddChild(confirm);
+	}
+
+	void RebuildRewardChoice(PendingRewardChoice? pending)
+	{
+		foreach (var child in _rewardRow.GetChildren())
+			child.QueueFree();
+
+		if (pending is null)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+		_rewardRow.AddChild(new Label { Text = "Награда:" });
+
+		for (var i = 0; i < pending.Options.Count; i++)
+		{
+			var idx = i;
+			var label = i < pending.OptionLabels.Count
+				? pending.OptionLabels[i]
+				: $"Вариант {i + 1}";
+			var btn = new Button { Text = label };
+			btn.Pressed += () =>
+			{
+				session.Submit(new ChooseRewardCommand(pid, idx));
+				Refresh();
+			};
+			_rewardRow.AddChild(btn);
+		}
+	}
+
+	void RebuildLawPrompt(GameState? state, PlayerState local, CardDatabase? cards)
+	{
+		foreach (var child in _lawPromptRow.GetChildren())
+			child.QueueFree();
+
+		if (state?.PendingLaw is not { } pending)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+		_lawPromptRow.AddChild(new Label { Text = $"Закон #{pending.LawDefinitionId}:" });
+
+		switch (pending.Kind)
+		{
+			case LawPromptKind.ChooseOption:
+			case LawPromptKind.OptionalSwapDecline:
+			case LawPromptKind.ParkGems:
+			case LawPromptKind.OfferTuckDrawnCard:
+				for (var i = 0; i < pending.OptionLabels.Count; i++)
+				{
+					var idx = i;
+					var btn = new Button { Text = pending.OptionLabels[i] };
+					btn.Pressed += () =>
+					{
+						session.Submit(new ResolveLawCommand(pid, OptionIndex: idx));
+						Refresh();
+					};
+					_lawPromptRow.AddChild(btn);
+				}
+
+				break;
+
+			case LawPromptKind.ChooseInfiniteColor:
+				foreach (GemColor color in Enum.GetValues<GemColor>())
+				{
+					var c = color;
+					var btn = MakeGemButton(c);
+					btn.Pressed += () =>
+					{
+						session.Submit(new ResolveLawCommand(pid, GemColor: c));
+						Refresh();
+					};
+					_lawPromptRow.AddChild(btn);
+				}
+
+				break;
+
+			case LawPromptKind.TakeAuctionCard:
+				foreach (var id in state.AuctionSlots.SelectMany(slot => slot.AvailableCards()))
+				{
+					var name = cards?.Characters.TryGetValue(id, out var ch) == true ? ch.Name : $"#{id}";
+					var captured = id;
+					var btn = new Button { Text = $"Аукцион: {name}" };
+					btn.Pressed += () =>
+					{
+						session.Submit(new ResolveLawCommand(pid, CharacterDefinitionId: captured));
+						Refresh();
+					};
+					_lawPromptRow.AddChild(btn);
+				}
+
+				break;
+
+			case LawPromptKind.ReturnLawsToDeck:
+				_lawPromptRow.AddChild(new Label { Text = "Выберите 2 закона:" });
+				for (var i = 0; i < local.Hand.Count; i++)
+				{
+					if (local.Hand[i].Kind != CardKind.Law)
+						continue;
+					var idx = i;
+					var selected = _lawReturnSelection.Contains(idx);
+					var btn = new Button
+					{
+						Text = $"{(selected ? "✓ " : "")}#{local.Hand[i].DefinitionId}"
+					};
+					btn.Pressed += () =>
+					{
+						if (!_lawReturnSelection.Add(idx))
+							_lawReturnSelection.Remove(idx);
+						Refresh();
+					};
+					_lawPromptRow.AddChild(btn);
+				}
+
+				var confirm = new Button
+				{
+					Text = "Вернуть 2",
+					Disabled = _lawReturnSelection.Count != 2
+				};
+				confirm.Pressed += () =>
+				{
+					session.Submit(new ResolveLawCommand(pid, HandIndices: _lawReturnSelection.ToList()));
+					_lawReturnSelection.Clear();
+					Refresh();
+				};
+				_lawPromptRow.AddChild(confirm);
+				break;
+		}
+	}
+
+	void RebuildTokenSwap(GameState? state, PlayerState local, CardDatabase? cards, bool swapActive)
+	{
+		foreach (var child in _tokenSwapRow.GetChildren())
+			child.QueueFree();
+
+		if (state?.PendingTokenSwap is not { } pending)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+
+		_tokenSwapRow.AddChild(new Label { Text = "Обмен #67:" });
+
+		var decline = new Button { Text = "Отказаться" };
+		decline.Pressed += () =>
+		{
+			session.Submit(new ResolveTokenSwapCommand(pid, Decline: true));
+			Refresh();
+		};
+		_tokenSwapRow.AddChild(decline);
+
+		if (!swapActive)
+			return;
+
+		_tokenSwapRow.AddChild(new Label
+		{
+			Text = $"своё:{(pending.OwnCardInstanceId?.ToString() ?? "-")}/" +
+			       $"{TokenRu(pending.OwnToken)} | чужое:p{pending.OtherPlayerId?.ToString() ?? "-"}/" +
+			       $"{pending.OtherCardInstanceId?.ToString() ?? "-"}/{TokenRu(pending.OtherToken)} | " +
+			       $"оплата {pending.Payment.Count}/3"
+		});
+
+		foreach (var pc in local.Pyramid.AllCards)
+		{
+			foreach (var (kind, amount) in TokensOn(pc))
+			{
+				if (amount <= 0)
+					continue;
+				var inst = pc.Card.InstanceId;
+				var tok = kind;
+				var name = CardShortName(pc.Card, cards);
+				var btn = new Button { Text = $"Своё {name}:{TokenRu(kind)}×{amount}" };
+				btn.Pressed += () =>
+				{
+					session.Submit(new ResolveTokenSwapCommand(pid, OwnCardInstanceId: inst, OwnToken: tok));
+					Refresh();
+				};
+				_tokenSwapRow.AddChild(btn);
+			}
+		}
+
+		foreach (var other in state.Players.Where(p => p.PlayerId != local.PlayerId && p.Pyramid.AllCards.Any()))
+		{
+			foreach (var pc in other.Pyramid.AllCards)
+			{
+				foreach (var (kind, amount) in TokensOn(pc))
+				{
+					if (amount <= 0)
+						continue;
+					var op = other.PlayerId;
+					var inst = pc.Card.InstanceId;
+					var tok = kind;
+					var name = CardShortName(pc.Card, cards);
+					var btn = new Button { Text = $"{other.DisplayName}:{name}:{TokenRu(kind)}×{amount}" };
+					btn.Pressed += () =>
+					{
+						session.Submit(new ResolveTokenSwapCommand(
+							pid,
+							OtherPlayerId: op,
+							OtherCardInstanceId: inst,
+							OtherToken: tok));
+						Refresh();
+					};
+					_tokenSwapRow.AddChild(btn);
+				}
+			}
+		}
+
+		foreach (GemColor color in Enum.GetValues<GemColor>())
+		{
+			var c = color;
+			var btn = MakeGemButton(c, disabled: pending.Payment.Count >= 3 || local.Screen[color] <= 0);
+			btn.TooltipText = $"Оплата: {GemIcons.ColorName(c)}";
+			btn.Pressed += () =>
+			{
+				session.Submit(new ResolveTokenSwapCommand(pid, PayGem: c));
+				Refresh();
+			};
+			_tokenSwapRow.AddChild(btn);
+		}
+
+		var ready = pending.OwnCardInstanceId is not null
+			&& pending.OwnToken is not null
+			&& pending.OtherPlayerId is not null
+			&& pending.OtherCardInstanceId is not null
+			&& pending.OtherToken is not null
+			&& pending.Payment.Count == 3;
+		var confirm = new Button { Text = "Подтвердить обмен", Disabled = !ready };
+		confirm.Pressed += () =>
+		{
+			session.Submit(new ResolveTokenSwapCommand(pid, Confirm: true));
+			Refresh();
+		};
+		_tokenSwapRow.AddChild(confirm);
+	}
+
+	static IEnumerable<(TokenKind Kind, int Amount)> TokensOn(PyramidCard pc)
+	{
+		yield return (TokenKind.VictoryPoints, pc.VictoryPoints);
+		yield return (TokenKind.Science, pc.Science);
+		yield return (TokenKind.Magic, pc.Magic);
+		yield return (TokenKind.Defense, pc.Defense);
+	}
+
+	static string TokenRu(TokenKind? kind) => kind switch
+	{
+		TokenKind.VictoryPoints => "VP",
+		TokenKind.Science => "Наука",
+		TokenKind.Magic => "Магия",
+		TokenKind.Defense => "Защита",
+		_ => "-"
+	};
+
+	static Button MakeGemButton(GemColor color, bool disabled = false)
+	{
+		var btn = new Button
+		{
+			Icon = GemIcons.Get(color),
+			Text = "",
+			Disabled = disabled,
+			TooltipText = GemIcons.ColorName(color),
+			CustomMinimumSize = new Vector2(44, 40),
+			ExpandIcon = true
+		};
+		btn.AddThemeConstantOverride("icon_max_width", 28);
+		return btn;
+	}
+
+	void RebuildHand(PlayerState? player, CardDatabase? cards, bool canDev)
+	{
+		ClearContainer(_handBox);
+
+		if (player is null)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var legal = player.Pyramid.LegalPlacements();
+		var pid = session.Session?.LocalPlayerId ?? 0;
+
+		if (_buildMode && _selectedHandIndex is int sel && (sel < 0 || sel >= player.Hand.Count))
+			ClearBuildDraft();
+
+		for (var i = 0; i < player.Hand.Count; i++)
+		{
+			var card = player.Hand[i];
+			var title = CardShortName(card, cards);
+			var selected = _buildMode && _selectedHandIndex == i;
+			var tip = cards is null
+				? title
+				: CardTooltips.ForCard(cards, card.Kind, card.DefinitionId);
+
+			var col = new VBoxContainer();
+			col.AddThemeConstantOverride("separation", CardGap);
+			var thumb = new CardThumb();
+			col.AddChild(thumb);
+			var hi = i;
+			var art = CardArt.Get(card.DefinitionId);
+			thumb.Setup(
+				art,
+				title,
+				tip + (canDev ? "\n\nПеретащите на слот пирамиды" : ""),
+				ThumbHand,
+				canDev && !_buildMode
+					? () => SelectHandCard(hi)
+					: null);
+			thumb.SetSelected(selected);
+			BindInspect(thumb, art, title, tip);
+			if (canDev)
+				thumb.EnableHandDrag(hi, card.Kind, card.DefinitionId);
+
+			if (canDev)
+			{
+				var actions = new HBoxContainer();
+				var discardBtn = new Button { Text = "Сброс+2", Disabled = _buildMode && !selected };
+				discardBtn.Pressed += () =>
+				{
+					ClearBuildDraft();
+					session.Submit(new DiscardForGemsCommand(pid, hi));
+					Refresh();
+				};
+				actions.AddChild(discardBtn);
+
+				if (!_buildMode)
+				{
+					var selectBtn = new Button { Text = "Выбрать" };
+					selectBtn.Pressed += () => SelectHandCard(hi);
+					actions.AddChild(selectBtn);
+				}
+
+				col.AddChild(actions);
+			}
+
+			if (canDev && _buildMode && _selectedHandIndex is int lawIdx
+			    && player.Hand[lawIdx].Kind == CardKind.Law
+			    && player.Hand[lawIdx].DefinitionId == LawIds.TuckFromHand
+			    && i != lawIdx)
+			{
+				var tuckBtn = new Button
+				{
+					Text = _law72TuckSelection.Contains(i) ? "✓ подложить" : "подложить?"
+				};
+				var tuckIdx = i;
+				tuckBtn.Pressed += () =>
+				{
+					if (!_law72TuckSelection.Add(tuckIdx))
+						_law72TuckSelection.Remove(tuckIdx);
+					Refresh();
+				};
+				col.AddChild(tuckBtn);
+			}
+
+			if (canDev && selected)
+				AddPlacementActions(col, player, card, i, legal, cards, session, pid);
+
+			_handBox.AddChild(col);
+		}
+	}
+
+	void AddPlacementActions(
+		VBoxContainer col,
+		PlayerState player,
+		CardInstance card,
+		int handIndex,
+		List<(int Level, int Index)> legal,
+		CardDatabase? cards,
+		GameSessionAutoload session,
+		int pid)
+	{
+		var wrap = new HFlowContainer();
+		col.AddChild(wrap);
+
+		if (card.Kind == CardKind.Law && LawIds.NeedsTargetOnPlay(card.DefinitionId)
+		    && card.DefinitionId is LawIds.Replace or LawIds.TuckUnderCharacter)
+		{
+			foreach (var target in player.Pyramid.AllCards)
+			{
+				if (card.DefinitionId == LawIds.TuckUnderCharacter && target.Card.Kind != CardKind.Character)
+					continue;
+				var tName = CardShortName(target.Card, cards);
+				var tid = target.Card.InstanceId;
+				var btn = new Button { Text = card.DefinitionId == LawIds.Replace ? $"↔{tName}" : $"↓{tName}" };
+				btn.Pressed += () =>
+				{
+					session.Submit(new PlayCardCommand(pid, handIndex, 1, 0, LawTargetInstanceId: tid));
+					ClearBuildDraft();
+					Refresh();
+				};
+				wrap.AddChild(btn);
+			}
+
+			return;
+		}
+
+		foreach (var (level, index) in legal)
+		{
+			if (card.Kind == CardKind.Law && level == 5)
+				continue;
+
+			var canAfford = true;
+			string costTip = "";
+			if (card.Kind == CardKind.Character && cards is not null)
+			{
+				var def = cards.GetCharacter(card.DefinitionId);
+				var baseCost = PlayCostHelper.BaseCost(def, level);
+				var effective = PlayCostHelper.EffectiveCost(player, def, level);
+				canAfford = PlayCostHelper.CanAfford(player, def, level);
+				var baseDesc = string.Join(" ", baseCost.Where(kv => kv.Value > 0)
+					.Select(kv => $"{CardTooltips.ColorRu(kv.Key)}×{kv.Value}"));
+				var payDesc = string.Join(" ", effective.Where(kv => kv.Value > 0)
+					.Select(kv => $"{CardTooltips.ColorRu(kv.Key)}×{kv.Value}"));
+				costTip = string.IsNullOrEmpty(payDesc)
+					? $"База: {baseDesc} (полностью ∞)"
+					: $"К оплате: {payDesc} (база {baseDesc})";
+			}
+
+			if (card.Kind == CardKind.Law && card.DefinitionId == LawIds.TuckFreeCard)
+			{
+				foreach (var free in player.Pyramid.FreeCards())
+				{
+					var fName = CardShortName(free.Card, cards);
+					var playBtn = new Button
+					{
+						Text = $"L{level}+↓{fName}",
+						Disabled = !canAfford,
+						TooltipText = string.IsNullOrEmpty(costTip) ? "Свободная карта" : $"Оплата: {costTip}"
+					};
+					var lvl = level;
+					var idx = index;
+					var fid = free.Card.InstanceId;
+					playBtn.Pressed += () =>
+					{
+						session.Submit(new PlayCardCommand(pid, handIndex, lvl, idx, LawTargetInstanceId: fid));
+						ClearBuildDraft();
+						Refresh();
+					};
+					wrap.AddChild(playBtn);
+				}
+
+				continue;
+			}
+
+			var placeBtn = new Button
+			{
+				Text = $"→L{level}:{(level == 1 ? (index == 0 ? "лево" : "право") : $"оп{index}")}",
+				Disabled = !canAfford,
+				TooltipText = string.IsNullOrEmpty(costTip) ? "Размещение" : $"Оплата: {costTip}"
+			};
+			var pl = level;
+			var pi = index;
+			placeBtn.Pressed += () =>
+			{
+				IReadOnlyList<int>? extras = null;
+				if (card.Kind == CardKind.Law && card.DefinitionId == LawIds.TuckFromHand)
+					extras = _law72TuckSelection.Where(x => x != handIndex).ToList();
+
+				session.Submit(new PlayCardCommand(pid, handIndex, pl, pi, ExtraHandIndices: extras));
+				ClearBuildDraft();
+				Refresh();
+			};
+			wrap.AddChild(placeBtn);
+		}
+	}
+
+	static string ColorRu(GemColor c) => c switch
+	{
+		GemColor.Blue => "Син",
+		GemColor.Red => "Крас",
+		GemColor.Green => "Зел",
+		GemColor.Yellow => "Жёл",
+		_ => c.ToString()
+	};
+
+	void AppendLog(string message)
+	{
+		_log.AppendText(message + "\n");
+		Refresh();
+	}
+
+	void Bid(GemColor color)
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new BidGemCommand(session.Session?.LocalPlayerId ?? 0, color));
+		Refresh();
+	}
+
+	void OnPassAuction()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new PassAuctionCommand(session.Session?.LocalPlayerId ?? 0));
+		Refresh();
+	}
+
+	void OnAttack()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new BidAttackCommand(session.Session?.LocalPlayerId ?? 0));
+		Refresh();
+	}
+
+	void OnPassDev()
+	{
+		ClearBuildDraft();
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new PassDevelopmentCommand(session.Session?.LocalPlayerId ?? 0));
+		Refresh();
+	}
+
+	void OnUndo()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		ClearBuildDraft();
+		session.Submit(new UndoCommand(session.Session?.LocalPlayerId ?? 0));
+		Refresh();
+	}
+
+	void OnCancelBuild()
+	{
+		ClearBuildDraft();
+		Refresh();
+	}
+
+	void ChooseLevel5(bool fifteen)
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new ChooseLevel5RewardCommand(session.Session?.LocalPlayerId ?? 0, fifteen));
+		Refresh();
+	}
+
+	void OnMenu()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.ShutdownSession();
+		GetTree().ChangeSceneToFile("res://scenes/MainMenu.tscn");
+	}
+}

@@ -1,0 +1,131 @@
+[gd_scene load_steps=2 format=3 uid="uid://bnamestnikmainmenu"]
+
+[ext_resource type="Script" path="res://scripts/Ui/MainMenuController.cs" id="1_menu"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.1, 0.08, 1)
+
+[node name="Center" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -280.0
+offset_right = 240.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.91, 0.82, 0.55, 1)
+theme_override_font_sizes/font_size = 42
+text = "Наместник"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.7, 0.6, 1)
+text = "Каркас · Solo / Host / Client"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="SoloButton" type="Button" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Соло (1 игрок + виртуал)"
+
+[node name="HostButton" type="Button" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Создать игру (хост)"
+
+[node name="JoinRow" type="HBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AddressEdit" type="LineEdit" parent="Center/JoinRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "127.0.0.1"
+alignment = 1
+
+[node name="JoinButton" type="Button" parent="Center/JoinRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 40)
+layout_mode = 2
+text = "Подключиться"
+
+[node name="QuitButton" type="Button" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Выход"
+
+[node name="SettingsSpacer" type="Control" parent="Center"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="SettingsTitle" type="Label" parent="Center"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.78, 0.62, 1)
+text = "Экран"
+horizontal_alignment = 1
+
+[node name="ResolutionRow" type="HBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResolutionLabel" type="Label" parent="Center/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Разрешение"
+
+[node name="ResolutionOption" type="OptionButton" parent="Center/ResolutionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+
+[node name="FullscreenCheck" type="CheckButton" parent="Center"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Полноэкранный режим"
+
+[node name="ApplyDisplayButton" type="Button" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Применить экран"
+
+[node name="StatusLabel" type="Label" parent="Center"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.65, 1)
+text = "…"
+horizontal_alignment = 1
+autowrap_mode = 3
