@@ -40,12 +40,13 @@ public sealed class RewardApplicator
 				host.VictoryPoints += vp.Amount;
 				_raise(new LogEvent($"{player.DisplayName}: +{vp.Amount} VP на карту"));
 				break;
-			case GemsReward gems:
-				TakeAnyGems(player, gems.Amount);
-				break;
-			case CardReward cards:
-				pendingCardDraws += cards.Amount;
-				break;
+		case GemsReward gems:
+			TakeAnyGems(player, gems.Amount);
+			break;
+		case CardReward cards:
+			pendingCardDraws += cards.Amount;
+			_raise(new LogEvent($"{player.DisplayName}: награда — взять {cards.Amount} карт(ы)"));
+			break;
 			case ScienceReward sci:
 				host.Science += sci.Amount;
 				_raise(new LogEvent($"{player.DisplayName}: +{sci.Amount} наука"));
@@ -126,7 +127,7 @@ public sealed class RewardApplicator
 		_raise(new LogEvent($"{player.DisplayName}: нет камня {color} для неисчерпаемого"));
 	}
 
-	static string DescribeReward(Reward reward) => reward switch
+	public static string Describe(Reward reward) => reward switch
 	{
 		VpReward vp => $"+{vp.Amount} VP",
 		GemsReward g => $"+{g.Amount} камней",
@@ -138,10 +139,12 @@ public sealed class RewardApplicator
 		InfiniteReward i => $"∞ {i.Color}",
 		BonusMagicReward b => $"бонус магии +{b.Amount}",
 		BonusCircleReward bc => $"бонус круга {bc.Color} +{bc.Amount}",
-		MultiReward multi => string.Join(" + ", multi.Parts.Select(DescribeReward)),
-		ChoiceReward => "выбор…",
+		MultiReward multi => string.Join(" + ", multi.Parts.Select(Describe)),
+		ChoiceReward choice => "выбор: " + string.Join(" / ", choice.Options.Select(Describe)),
 		_ => reward.GetType().Name
 	};
+
+	static string DescribeReward(Reward reward) => Describe(reward);
 
 	public void TakeAnyGems(PlayerState player, int amount)
 	{

@@ -20,6 +20,7 @@ public static class GameStateClone
 			NextInstanceId = src.NextInstanceId,
 			NextTurnIsLast = src.NextTurnIsLast,
 			FinalTurnInProgress = src.FinalTurnInProgress,
+			LastRewardSummary = src.LastRewardSummary,
 			Result = src.Result
 		};
 

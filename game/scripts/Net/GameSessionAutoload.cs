@@ -16,6 +16,7 @@ public partial class GameSessionAutoload : Node
 
 	[Signal] public delegate void SessionEventEventHandler(string message);
 	[Signal] public delegate void SessionStartedEventHandler();
+	[Signal] public delegate void NoticeRequestedEventHandler(string title, string body);
 
 	public override void _Ready()
 	{
@@ -79,6 +80,23 @@ public partial class GameSessionAutoload : Node
 
 	void OnEvent(GameEvent e)
 	{
+		if (e is AuctionConflictEvent conflict)
+		{
+			var colorRu = conflict.Color switch
+			{
+				GemColor.Blue => "синий",
+				GemColor.Red => "красный",
+				GemColor.Green => "зелёный",
+				GemColor.Yellow => "жёлтый",
+				_ => conflict.Color.ToString()
+			};
+			var title = $"Конфликт ставки: {colorRu}";
+			EmitSignal(SignalName.NoticeRequested, title, conflict.Detail);
+			GD.Print($"[Session] {title}: {conflict.Detail}");
+			EmitSignal(SignalName.SessionEvent, $"{title} — {conflict.Detail}");
+			return;
+		}
+
 		var text = e switch
 		{
 			LogEvent log => log.Message,

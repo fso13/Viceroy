@@ -291,8 +291,19 @@ public sealed partial class GameEngine
 			PayForCharacter(player, def, play.Level, play.UseInfinites);
 			player.Pyramid.Place(placed);
 			TryGrantMonochromeCircle(player, placed);
+			var circleNote = State.LastRewardSummary;
+			var rewardDesc = play.Level == 5
+				? "выбор награды 5-го уровня"
+				: DescribeRewardShort(def.GetLevel(play.Level).Reward);
 			GrantCharacterReward(player, placed, def, play.Level);
-			Raise(new LogEvent($"{player.DisplayName} играет «{def.Name}» на ур.{play.Level}"));
+			if (!string.IsNullOrEmpty(circleNote) && circleNote.Contains("одноцветный круг", StringComparison.Ordinal))
+			{
+				State.LastRewardSummary = string.IsNullOrEmpty(State.LastRewardSummary)
+					? circleNote
+					: $"{State.LastRewardSummary}; {circleNote}";
+			}
+
+			Raise(new LogEvent($"{player.DisplayName} играет «{def.Name}» на ур.{play.Level} → {rewardDesc}"));
 			return;
 		}
 
@@ -410,10 +421,13 @@ public sealed partial class GameEngine
 			return;
 
 		var (left, right) = supports.Value;
-		var leftSec = GetSectors(left.Card);
-		var rightSec = GetSectors(right.Card);
-		var upSec = GetSectors(placed.Card);
-		GemColor[] sectors = [leftSec.Tr, rightSec.Tl, upSec.Bl, upSec.Br];
+		GemColor[] sectors =
+		[
+			SectorOf(left, "tr"),
+			SectorOf(right, "tl"),
+			SectorOf(placed, "bl"),
+			SectorOf(placed, "br")
+		];
 		if (sectors.Distinct().Count() != 1)
 			return;
 
@@ -421,12 +435,20 @@ public sealed partial class GameEngine
 		if (State.Reserve.TrySpend(color))
 		{
 			player.Screen.Add(color);
-			Raise(new LogEvent($"{player.DisplayName}: одноцветный круг {color} → +1 камень"));
+			State.LastRewardSummary = $"{player.DisplayName}: одноцветный круг → +1 {ColorRu(color)}";
+			Raise(new LogEvent($"{player.DisplayName}: одноцветный круг {ColorRu(color)} → +1 камень за ширму"));
 		}
 		else
 		{
-			Raise(new LogEvent($"{player.DisplayName}: одноцветный круг {color}, но в резерве пусто"));
+			State.LastRewardSummary = $"{player.DisplayName}: одноцветный круг {ColorRu(color)}, но в резерве пусто";
+			Raise(new LogEvent(State.LastRewardSummary));
 		}
+	}
+
+	GemColor SectorOf(PyramidCard card, string corner)
+	{
+		var printed = GetSectors(card.Card);
+		return card.EffectiveSector(printed, corner);
 	}
 
 	SectorColors GetSectors(CardInstance card) =>
@@ -448,13 +470,19 @@ public sealed partial class GameEngine
 				CharacterDefinitionId = def.Id
 			};
 			needsLevel5 = true;
+			State.LastRewardSummary = $"{player.DisplayName}: выберите награду 5-го уровня";
 			return;
 		}
 
 		var reward = def.GetLevel(level).Reward;
+		State.LastRewardSummary = $"{player.DisplayName} ← {DescribeRewardShort(reward)} (ур.{level})";
 		Rewards.Apply(player, host, reward, ref needsLevel5, ref pendingDraws);
 		if (State.PendingRewardChoice is not null)
+		{
+			State.LastRewardSummary = $"{player.DisplayName}: выберите вариант награды";
 			return;
+		}
+
 		if (pendingDraws > 0)
 			Rewards.DrawCardsAuto(player, pendingDraws);
 	}
@@ -594,6 +622,8 @@ public sealed partial class GameEngine
 		TokenKind.Defense => card.Defense,
 		_ => 0
 	};
+
+	static string DescribeRewardShort(Reward reward) => RewardApplicator.Describe(reward);
 
 	static void AdjustToken(PyramidCard card, TokenKind kind, int delta)
 	{

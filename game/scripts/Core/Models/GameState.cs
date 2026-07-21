@@ -51,6 +51,9 @@ public sealed class GameState
 	public PendingPassGems? PendingPassGems { get; set; }
 	public PendingTokenSwap? PendingTokenSwap { get; set; }
 
+	/// <summary>Human-readable last character reward (UI banner).</summary>
+	public string? LastRewardSummary { get; set; }
+
 	/// <summary>Plays deferred while a prompt (law / L5 / reward / pass gems) is open.</summary>
 	public List<(int PlayerId, PlayDevelopmentAction Play)> DeferredDevPlays { get; } = new();
 

@@ -15,6 +15,13 @@ public sealed record BidAcceptedEvent(int PlayerId) : GameEvent;
 
 public sealed record AuctionRoundResolvedEvent(int Round, string Summary) : GameEvent;
 
+/// <summary>Human bid collided (e.g. with virtual) — stakes lost, card stays, next round.</summary>
+public sealed record AuctionConflictEvent(
+	GemColor Color,
+	string OpponentName,
+	int CardsOnColor,
+	string Detail) : GameEvent;
+
 public sealed record CardChoiceRequiredEvent(int PlayerId, GemColor Color, IReadOnlyList<int> Options)
 	: GameEvent;
 

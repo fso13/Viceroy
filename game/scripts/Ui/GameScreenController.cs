@@ -29,6 +29,7 @@ public partial class GameScreenController : Control
 	Button _undoButton = null!;
 	Button _cancelBuildButton = null!;
 	CardZoomOverlay _zoom = null!;
+	NoticeOverlay _notice = null!;
 
 	readonly HashSet<int> _lawReturnSelection = new();
 	readonly HashSet<int> _law72TuckSelection = new();
@@ -39,10 +40,10 @@ public partial class GameScreenController : Control
 	/// <summary>True while a hand card is selected and awaiting placement/target.</summary>
 	bool _buildMode;
 
-	static readonly Vector2 ThumbAuction = new(88, 88);
-	static Vector2 ThumbPyramid = new(72, 72);
-	static readonly Vector2 ThumbHand = new(108, 108);
-	const int CardGap = 2;
+	static readonly Vector2 ThumbAuction = new(118, 118);
+	static Vector2 ThumbPyramid = new(100, 100);
+	static readonly Vector2 ThumbHand = new(126, 126);
+	const int CardGap = 12;
 
 	public override void _Ready()
 	{
@@ -76,35 +77,24 @@ public partial class GameScreenController : Control
 		GetNode<Button>("%Level5Bundle").Pressed += () => ChooseLevel5(false);
 		GetNode<Button>("%Level5Fifteen").Pressed += () => ChooseLevel5(true);
 
-		GetNode<Button>("%BidBlue").Pressed += () => Bid(GemColor.Blue);
-		GetNode<Button>("%BidRed").Pressed += () => Bid(GemColor.Red);
-		GetNode<Button>("%BidGreen").Pressed += () => Bid(GemColor.Green);
-		GetNode<Button>("%BidYellow").Pressed += () => Bid(GemColor.Yellow);
-
-		StyleGemBidButton(GetNode<Button>("%BidBlue"), GemColor.Blue);
-		StyleGemBidButton(GetNode<Button>("%BidRed"), GemColor.Red);
-		StyleGemBidButton(GetNode<Button>("%BidGreen"), GemColor.Green);
-		StyleGemBidButton(GetNode<Button>("%BidYellow"), GemColor.Yellow);
-
 		_zoom = new CardZoomOverlay();
 		AddChild(_zoom);
+		_notice = new NoticeOverlay();
+		AddChild(_notice);
 
 		_handBox.AddThemeConstantOverride("separation", CardGap);
-		_auctionCards.AddThemeConstantOverride("separation", 8);
+		_auctionCards.AddThemeConstantOverride("separation", CardGap);
 
 		var session = GetNode<GameSessionAutoload>("/root/GameSession");
 		session.SessionEvent += AppendLog;
+		session.NoticeRequested += OnNoticeRequested;
 		Refresh();
 	}
 
-	static void StyleGemBidButton(Button button, GemColor color)
+	void OnNoticeRequested(string title, string body)
 	{
-		button.Icon = GemIcons.Get(color);
-		button.ExpandIcon = true;
-		button.AddThemeConstantOverride("icon_max_width", 28);
-		button.Text = "";
-		button.TooltipText = GemIcons.ColorName(color);
-		button.CustomMinimumSize = new Vector2(44, 40);
+		_notice.Enqueue(title, body);
+		Refresh();
 	}
 
 	void ShowCardZoom(Texture2D texture, string title, string details) =>
@@ -187,8 +177,6 @@ public partial class GameScreenController : Control
 		var localId = session.Session!.LocalPlayerId;
 		var local = s.GetPlayer(localId);
 
-		RebuildAuctionBoard(s, cards);
-
 		var sealedMark = s.Phase == TurnPhase.Auction
 			? (s.SealedBids.ContainsKey(localId) ? "ставка принята" : "ждём ставку")
 			: (s.SealedDevActions.ContainsKey(localId) || local.ActedThisDevelopmentRound
@@ -198,7 +186,8 @@ public partial class GameScreenController : Control
 		_infoLabel.Text =
 			$"{local.DisplayName} | рука:{local.Hand.Count} | пирамида:{local.Pyramid.AllCards.Count()} " +
 			$"(VP:{local.VictoryPointTokens} Sci:{local.ScienceTokens} Mag:{local.MagicTokens} Def:{local.DefenseTokens})\n" +
-			$"Колоды big={s.BigDeck.Count} small={s.SmallDeck.Count} laws={s.LawDeck.Count} | {sealedMark}";
+			$"Колоды big={s.BigDeck.Count} small={s.SmallDeck.Count} laws={s.LawDeck.Count} | {sealedMark}" +
+			(string.IsNullOrEmpty(s.LastRewardSummary) ? "" : $"\n★ {s.LastRewardSummary}");
 
 		RebuildGemStatusRow(local);
 
@@ -244,6 +233,7 @@ public partial class GameScreenController : Control
 			_pendingTuckFreeDrop = null;
 		}
 
+		RebuildAuctionBoard(s, cards, local, canBid);
 		RebuildPyramidBoard(local, cards, canDev);
 
 		SetAuctionUi(canBid, canChoose);
@@ -300,8 +290,6 @@ public partial class GameScreenController : Control
 		_bidRow.Visible = canBid || canChoose;
 		_passAuctionButton.Disabled = !canBid;
 		_attackButton.Disabled = !canBid;
-		foreach (var color in new[] { "BidBlue", "BidRed", "BidGreen", "BidYellow" })
-			GetNode<Button>($"%{color}").Disabled = !canBid;
 		_choiceRow.Visible = canChoose;
 	}
 
@@ -321,11 +309,12 @@ public partial class GameScreenController : Control
 
 		var cardCount = Math.Max(1, local.Pyramid.AllCards.Count());
 		var height = Math.Max(1, local.Pyramid.Height);
-		// Fit whole pyramid on screen: shrink with more cards / taller stack (no scroll).
-		var size = height >= 4 || cardCount > 12 ? 48f
-			: cardCount <= 6 ? 72f
-			: cardCount <= 10 ? 60f
-			: 52f;
+		// Prefer large cards; shrink only when the base row gets wide.
+		var size = height >= 5 || cardCount > 14 ? 72f
+			: cardCount <= 4 ? 110f
+			: cardCount <= 8 ? 100f
+			: cardCount <= 12 ? 88f
+			: 78f;
 		ThumbPyramid = new Vector2(size, size);
 
 		var legal = canDev ? local.Pyramid.LegalPlacements() : new List<(int Level, int Index)>();
@@ -411,7 +400,12 @@ public partial class GameScreenController : Control
 			}
 			else
 			{
-				var spacer = new Control { CustomMinimumSize = ThumbPyramid + new Vector2(4, 4) };
+				var spacer = new Control
+				{
+					CustomMinimumSize = CardThumb.OuterSize(ThumbPyramid),
+					SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+					SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+				};
 				rowBox.AddChild(spacer);
 			}
 		}
@@ -457,7 +451,7 @@ public partial class GameScreenController : Control
 			level,
 			index,
 			caption,
-			ThumbPyramid,
+			CardThumb.OuterSize(ThumbPyramid),
 			tip,
 			handIndex => CanDropOnSlot(local, cards, handIndex, level),
 			handIndex => DropOnSlot(local, cards, handIndex, level, index));
@@ -598,13 +592,18 @@ public partial class GameScreenController : Control
 		_pyramidCards.AddChild(box);
 	}
 
-	void RebuildAuctionBoard(GameState s, CardDatabase? cards)
+	void RebuildAuctionBoard(GameState s, CardDatabase? cards, PlayerState local, bool canBid)
 	{
 		ClearContainer(_auctionCards);
 		foreach (var slot in s.AuctionSlots)
 		{
-			var col = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-			col.AddThemeConstantOverride("separation", CardGap);
+			var col = new VBoxContainer
+			{
+				Alignment = BoxContainer.AlignmentMode.Begin,
+				SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+				SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+			};
+			col.AddThemeConstantOverride("separation", 6);
 
 			CardThumb MakeAuctionThumb(int? id, string emptyTag)
 			{
@@ -630,10 +629,35 @@ public partial class GameScreenController : Control
 
 			col.AddChild(MakeAuctionThumb(slot.CardAtTip, "↑"));
 
-			var gem = GemIcons.MakeRect(slot.Color, 36f);
-			gem.TooltipText = $"Рынок: {GemIcons.ColorName(slot.Color)}";
-			col.AddChild(gem);
+			var color = slot.Color;
+			var hasCards = slot.AvailableCount > 0;
+			var canAfford = local.Screen.CanPay(color);
+			var bidEnabled = canBid && hasCards && canAfford;
+			var gemBtn = new Button
+			{
+				Icon = GemIcons.Get(color),
+				ExpandIcon = true,
+				Text = "",
+				TooltipText = bidEnabled
+					? $"Ставка: {GemIcons.ColorName(color)}"
+					: !canBid
+						? $"Рынок: {GemIcons.ColorName(color)}"
+						: !hasCards
+							? $"{GemIcons.ColorName(color)}: нет карт"
+							: $"{GemIcons.ColorName(color)}: нет камня за ширмой",
+				Disabled = !bidEnabled,
+				CustomMinimumSize = new Vector2(48, 48),
+				SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+				MouseDefaultCursorShape = bidEnabled ? Control.CursorShape.PointingHand : Control.CursorShape.Arrow
+			};
+			gemBtn.AddThemeConstantOverride("icon_max_width", 40);
+			if (bidEnabled)
+			{
+				var bidColor = color;
+				gemBtn.Pressed += () => Bid(bidColor);
+			}
 
+			col.AddChild(gemBtn);
 			col.AddChild(MakeAuctionThumb(slot.CardAtBase, "↓"));
 			_auctionCards.AddChild(col);
 		}
@@ -1002,8 +1026,12 @@ public partial class GameScreenController : Control
 				? title
 				: CardTooltips.ForCard(cards, card.Kind, card.DefinitionId);
 
-			var col = new VBoxContainer();
-			col.AddThemeConstantOverride("separation", CardGap);
+			var col = new VBoxContainer
+			{
+				SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
+				SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+			};
+			col.AddThemeConstantOverride("separation", 4);
 			var thumb = new CardThumb();
 			col.AddChild(thumb);
 			var hi = i;
@@ -1186,7 +1214,6 @@ public partial class GameScreenController : Control
 	void AppendLog(string message)
 	{
 		_log.AppendText(message + "\n");
-		Refresh();
 	}
 
 	void Bid(GemColor color)

@@ -421,4 +421,13 @@ public sealed partial class GameEngine
 
 	string CardName(int id) =>
 		_db.Characters.TryGetValue(id, out var c) ? c.Name : $"#{id}";
+
+	static string ColorRu(GemColor c) => c switch
+	{
+		GemColor.Blue => "синий",
+		GemColor.Red => "красный",
+		GemColor.Green => "зелёный",
+		GemColor.Yellow => "жёлтый",
+		_ => c.ToString()
+	};
 }

@@ -81,9 +81,9 @@
       "id": 2,
       "name": "ПОСОЛ",
       "sectors": {
-        "tl": "yellow",
+        "tl": "blue",
         "tr": "blue",
-        "bl": "blue",
+        "bl": "yellow",
         "br": "yellow"
       },
       "levels": [
@@ -180,10 +180,10 @@
       "id": 4,
       "name": "НАСТАВНИК",
       "sectors": {
-        "tl": "red",
+        "tl": "blue",
         "tr": "blue",
         "bl": "blue",
-        "br": "yellow"
+        "br": "blue"
       },
       "levels": [
         {
@@ -495,10 +495,10 @@
       "id": 10,
       "name": "МАРШАЛ",
       "sectors": {
-        "tl": "yellow",
-        "tr": "blue",
-        "bl": "red",
-        "br": "blue"
+        "tl": "blue",
+        "tr": "yellow",
+        "bl": "yellow",
+        "br": "yellow"
       },
       "levels": [
         {
@@ -540,10 +540,10 @@
       "id": 11,
       "name": "АРБАЛЕТЧИЦА",
       "sectors": {
-        "tl": "green",
+        "tl": "red",
         "tr": "green",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -847,7 +847,7 @@
       "id": 17,
       "name": "КАПРАЛ",
       "sectors": {
-        "tl": "yellow",
+        "tl": "red",
         "tr": "red",
         "bl": "blue",
         "br": "blue"
@@ -910,10 +910,10 @@
       "id": 18,
       "name": "ВЕЛЬМОЖА",
       "sectors": {
-        "tl": "red",
+        "tl": "blue",
         "tr": "blue",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -1124,7 +1124,7 @@
         "tl": "blue",
         "tr": "green",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -1338,10 +1338,10 @@
       "id": 26,
       "name": "ОХОТНИЦА",
       "sectors": {
-        "tl": "green",
+        "tl": "blue",
         "tr": "yellow",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -1719,8 +1719,8 @@
       "sectors": {
         "tl": "green",
         "tr": "blue",
-        "bl": "red",
-        "br": "blue"
+        "bl": "yellow",
+        "br": "yellow"
       },
       "levels": [
         {
@@ -1953,10 +1953,10 @@
       "id": 38,
       "name": "ДРУИД",
       "sectors": {
-        "tl": "red",
+        "tl": "yellow",
         "tr": "yellow",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -2017,7 +2017,7 @@
       "name": "ВИТЯЗЬ",
       "sectors": {
         "tl": "green",
-        "tr": "red",
+        "tr": "green",
         "bl": "blue",
         "br": "blue"
       },
@@ -2121,7 +2121,7 @@
         "tl": "green",
         "tr": "yellow",
         "bl": "yellow",
-        "br": "green"
+        "br": "yellow"
       },
       "levels": [
         {
@@ -2173,10 +2173,10 @@
       "id": 42,
       "name": "ЛАЗУТЧИК",
       "sectors": {
-        "tl": "red",
+        "tl": "yellow",
         "tr": "green",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -2392,7 +2392,7 @@
         "tl": "yellow",
         "tr": "blue",
         "bl": "green",
-        "br": "red"
+        "br": "green"
       },
       "levels": [
         {
@@ -2445,7 +2445,7 @@
       "sectors": {
         "tl": "green",
         "tr": "red",
-        "bl": "yellow",
+        "bl": "blue",
         "br": "blue"
       },
       "levels": [
@@ -2544,10 +2544,10 @@
       "id": 49,
       "name": "ВЕДЬМА",
       "sectors": {
-        "tl": "yellow",
+        "tl": "green",
         "tr": "blue",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -2716,10 +2716,10 @@
       "id": 52,
       "name": "РЕГЕНТ",
       "sectors": {
-        "tl": "green",
+        "tl": "yellow",
         "tr": "red",
         "bl": "yellow",
-        "br": "red"
+        "br": "yellow"
       },
       "levels": [
         {
@@ -2770,7 +2770,7 @@
       "id": 53,
       "name": "СЛЕДОПЫТ",
       "sectors": {
-        "tl": "red",
+        "tl": "green",
         "tr": "green",
         "bl": "green",
         "br": "green"
@@ -2824,7 +2824,7 @@
       "id": 54,
       "name": "КОЛДУН",
       "sectors": {
-        "tl": "red",
+        "tl": "yellow",
         "tr": "yellow",
         "bl": "blue",
         "br": "blue"
@@ -2933,9 +2933,9 @@
       "name": "ОТРАВИТЕЛЬ",
       "sectors": {
         "tl": "yellow",
-        "tr": "green",
+        "tr": "yellow",
         "bl": "yellow",
-        "br": "red"
+        "br": "yellow"
       },
       "levels": [
         {
@@ -2989,7 +2989,7 @@
         "tl": "green",
         "tr": "yellow",
         "bl": "green",
-        "br": "red"
+        "br": "green"
       },
       "levels": [
         {
@@ -3193,10 +3193,10 @@
       "id": 61,
       "name": "СКУПЩИК",
       "sectors": {
-        "tl": "yellow",
+        "tl": "green",
         "tr": "red",
         "bl": "green",
-        "br": "yellow"
+        "br": "green"
       },
       "levels": [
         {
@@ -3340,9 +3340,9 @@
       "name": "ВОЖДЬ",
       "sectors": {
         "tl": "yellow",
-        "tr": "red",
+        "tr": "blue",
         "bl": "yellow",
-        "br": "red"
+        "br": "yellow"
       },
       "levels": [
         {

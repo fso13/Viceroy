@@ -25,8 +25,13 @@ public partial class CardThumb : PanelContainer
 	bool _longFired;
 	double _pressSeconds;
 
+	Control _artStack = null!;
+	HFlowContainer _badges = null!;
+
 	const float LongPressSeconds = 0.45f;
 	const float MoveSlop = 10f;
+	const float CaptionHeight = 18f;
+	const float Chrome = 6f; // panel margins + vbox gap
 
 	static readonly StyleBoxFlat NormalStyle = MakeStyle(new Color(0.18f, 0.16f, 0.12f), new Color(0.45f, 0.38f, 0.28f));
 	static readonly StyleBoxFlat SelectedStyle = MakeStyle(new Color(0.28f, 0.24f, 0.14f), new Color(0.85f, 0.72f, 0.35f));
@@ -39,22 +44,32 @@ public partial class CardThumb : PanelContainer
 		Build();
 	}
 
-	HFlowContainer _badges = null!;
-
 	void Build()
 	{
 		MouseFilter = MouseFilterEnum.Stop;
+		ClipContents = true;
+		SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+		SizeFlagsVertical = SizeFlags.ShrinkBegin;
 		AddThemeStyleboxOverride("panel", NormalStyle);
 
-		var vbox = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore };
+		var vbox = new VBoxContainer
+		{
+			MouseFilter = MouseFilterEnum.Ignore,
+			SizeFlagsHorizontal = SizeFlags.Fill,
+			SizeFlagsVertical = SizeFlags.Fill
+		};
 		vbox.AddThemeConstantOverride("separation", 2);
 
-		var artStack = new Control { MouseFilter = MouseFilterEnum.Ignore };
+		_artStack = new Control
+		{
+			MouseFilter = MouseFilterEnum.Ignore,
+			ClipContents = true,
+			CustomMinimumSize = new Vector2(96, 96)
+		};
 		Art = new TextureRect
 		{
 			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
 			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-			CustomMinimumSize = new Vector2(96, 96),
 			MouseFilter = MouseFilterEnum.Ignore
 		};
 		Art.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -72,21 +87,29 @@ public partial class CardThumb : PanelContainer
 		_badges.OffsetLeft = 2;
 		_badges.OffsetRight = -2;
 
-		artStack.AddChild(Art);
-		artStack.AddChild(_badges);
+		_artStack.AddChild(Art);
+		_artStack.AddChild(_badges);
 
 		Caption = new Label
 		{
 			HorizontalAlignment = HorizontalAlignment.Center,
-			AutowrapMode = TextServer.AutowrapMode.WordSmart,
-			MouseFilter = MouseFilterEnum.Ignore
+			VerticalAlignment = VerticalAlignment.Center,
+			AutowrapMode = TextServer.AutowrapMode.Off,
+			TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+			MouseFilter = MouseFilterEnum.Ignore,
+			ClipText = true,
+			CustomMinimumSize = new Vector2(0, CaptionHeight)
 		};
-		Caption.AddThemeFontSizeOverride("font_size", 10);
+		Caption.AddThemeFontSizeOverride("font_size", 11);
 
-		vbox.AddChild(artStack);
+		vbox.AddChild(_artStack);
 		vbox.AddChild(Caption);
 		AddChild(vbox);
 	}
+
+	/// <summary>Outer size of a thumb with the given art size (caption always reserved for alignment).</summary>
+	public static Vector2 OuterSize(Vector2 artSize, bool reserveCaption = true) =>
+		new(artSize.X + Chrome, artSize.Y + Chrome + (reserveCaption ? CaptionHeight : 0f));
 
 	public void Setup(
 		Texture2D texture,
@@ -100,12 +123,18 @@ public partial class CardThumb : PanelContainer
 			Build();
 
 		Art!.Texture = texture;
-		Art.GetParent<Control>().CustomMinimumSize = artSize;
+		_artStack.CustomMinimumSize = artSize;
 		Caption.Text = caption;
-		Caption.Visible = showCaption && !string.IsNullOrEmpty(caption);
+		Caption.Visible = true; // always occupy height so rows stay aligned
+		Caption.Modulate = showCaption && !string.IsNullOrEmpty(caption)
+			? Colors.White
+			: new Color(1, 1, 1, 0);
 		TooltipText = tooltip + "\n(удерживайте для увеличения)";
-		var captionH = Caption.Visible ? 18f : 0f;
-		CustomMinimumSize = new Vector2(artSize.X + 4, artSize.Y + 4 + captionH);
+
+		var outer = OuterSize(artSize, reserveCaption: true);
+		CustomMinimumSize = outer;
+		Size = outer;
+
 		ClearBadges();
 		_onPressed = onPressed;
 		_dragHandIndex = null;
@@ -215,7 +244,6 @@ public partial class CardThumb : PanelContainer
 		if (_dragHandIndex is not int handIndex || _longFired)
 			return default;
 
-		// Cancel long-press path once drag starts.
 		_pressing = false;
 		SetProcess(false);
 

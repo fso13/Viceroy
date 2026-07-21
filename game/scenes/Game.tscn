@@ -27,14 +27,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="Header" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -43,7 +43,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "Фаза"
 
 [node name="UndoButton" type="Button" parent="Margin/VBox/Header"]
@@ -71,13 +71,83 @@ theme_override_constants/separation = 10
 
 [node name="TableRow" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 16
-size_flags_vertical = 0
+theme_override_constants/separation = 20
+size_flags_vertical = 3
+size_flags_horizontal = 3
+
+[node name="LeftColumn" type="VBoxContainer" parent="Margin/VBox/TableRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.95
+theme_override_constants/separation = 8
+
+[node name="AuctionBox" type="VBoxContainer" parent="Margin/VBox/TableRow/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AuctionTitle" type="Label" parent="Margin/VBox/TableRow/LeftColumn/AuctionBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Аукцион"
+
+[node name="AuctionCards" type="HBoxContainer" parent="Margin/VBox/TableRow/LeftColumn/AuctionBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="BidRow" type="HBoxContainer" parent="Margin/VBox/TableRow/LeftColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AttackButton" type="Button" parent="Margin/VBox/TableRow/LeftColumn/BidRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Атака"
+
+[node name="PassAuctionButton" type="Button" parent="Margin/VBox/TableRow/LeftColumn/BidRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Пас"
+
+[node name="ChoiceRow" type="HBoxContainer" parent="Margin/VBox/TableRow/LeftColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PassGemsRow" type="HBoxContainer" parent="Margin/VBox/TableRow/LeftColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HandTitle" type="Label" parent="Margin/VBox/TableRow/LeftColumn"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Рука"
+
+[node name="HandScroll" type="ScrollContainer" parent="Margin/VBox/TableRow/LeftColumn"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+vertical_scroll_mode = 0
+
+[node name="HandBox" type="HBoxContainer" parent="Margin/VBox/TableRow/LeftColumn/HandScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
 
 [node name="PyramidBox" type="VBoxContainer" parent="Margin/VBox/TableRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.15
 theme_override_constants/separation = 4
 
 [node name="PyramidTitle" type="Label" parent="Margin/VBox/TableRow/PyramidBox"]
@@ -97,70 +167,7 @@ autowrap_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 2
-
-[node name="AuctionBox" type="VBoxContainer" parent="Margin/VBox/TableRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="AuctionTitle" type="Label" parent="Margin/VBox/TableRow/AuctionBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Аукцион"
-
-[node name="AuctionCards" type="HBoxContainer" parent="Margin/VBox/TableRow/AuctionBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BidRow" type="HBoxContainer" parent="Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BidBlue" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Синий"
-
-[node name="BidRed" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Красный"
-
-[node name="BidGreen" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Зелёный"
-
-[node name="BidYellow" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Жёлтый"
-
-[node name="AttackButton" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Атака"
-
-[node name="PassAuctionButton" type="Button" parent="Margin/VBox/BidRow"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Пас"
-
-[node name="ChoiceRow" type="HBoxContainer" parent="Margin/VBox"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="PassGemsRow" type="HBoxContainer" parent="Margin/VBox"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="DevRow" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -211,22 +218,11 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HandScroll" type="ScrollContainer" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 168)
-layout_mode = 2
-size_flags_vertical = 0
-vertical_scroll_mode = 0
-
-[node name="HandBox" type="HBoxContainer" parent="Margin/VBox/HandScroll"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
-
 [node name="Log" type="RichTextLabel" parent="Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 0
 bbcode_enabled = true
 scroll_following = true
+fit_content = false

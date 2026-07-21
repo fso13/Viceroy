@@ -37,14 +37,16 @@ public partial class PyramidDropSlot : PanelContainer
 
 		_label!.Text = caption;
 		TooltipText = tooltip;
-		CustomMinimumSize = size + new Vector2(8, 8);
+		CustomMinimumSize = size;
 		AddThemeStyleboxOverride("panel", Idle);
 		MouseFilter = MouseFilterEnum.Stop;
 	}
 
 	void Build(Vector2 size)
 	{
-		CustomMinimumSize = size + new Vector2(8, 8);
+		CustomMinimumSize = size;
+		SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+		SizeFlagsVertical = SizeFlags.ShrinkBegin;
 		AddThemeStyleboxOverride("panel", Idle);
 		_label = new Label
 		{

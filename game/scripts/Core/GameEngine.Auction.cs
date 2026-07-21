@@ -264,17 +264,33 @@ public sealed partial class GameEngine
 
 		// Contested: nobody gets a card, stay for next round.
 		Raise(new LogEvent($"Конфликт на {color} (k={k}, n={n}) — карты не розданы"));
+		Raise(new AuctionConflictEvent(
+			color,
+			"другие игроки",
+			n,
+			$"На {ColorRu(color)} поставили {k} игроков, а карт только {n}. " +
+			"Ставки ушли в резерв, карты остаются на аукционе — новый круг."));
 	}
 
 	void ResolveHumanVsVirtualGem(GemColor color, List<int> humans, List<int> virtuals, List<int> cards)
 	{
 		var n = cards.Count;
 		var slot = State.Slot(color);
+		var virtName = virtuals.Count == 1
+			? State.GetPlayer(virtuals[0]).DisplayName
+			: $"виртуалы ({virtuals.Count})";
 
 		// n=1: conflict with virtual — card stays, everyone continues next round.
 		if (n == 1)
 		{
 			Raise(new LogEvent($"Конфликт с виртуалом на {color} — карта остаётся, новый круг"));
+			Raise(new AuctionConflictEvent(
+				color,
+				virtName,
+				1,
+				$"{virtName} тоже сделал ставку цветом «{ColorRu(color)}». " +
+				"По правилам соло обе ставки сгорают (ваша — в резерв, виртуала — обратно в коробку), " +
+				"карта остаётся на аукционе. Начинается новый круг — поставьте снова."));
 			return;
 		}
 
