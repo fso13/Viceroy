@@ -91,6 +91,12 @@ public static class CommandSerializer
 				playerId = c.PlayerId,
 				optionIndex = c.OptionIndex
 			},
+			ChooseDeckDrawCommand c => new
+			{
+				type = nameof(ChooseDeckDrawCommand),
+				playerId = c.PlayerId,
+				fromLawDeck = c.FromLawDeck
+			},
 			UndoCommand c => new { type = nameof(UndoCommand), playerId = c.PlayerId },
 			ResolveTokenSwapCommand c => new
 			{
@@ -154,6 +160,8 @@ public static class CommandSerializer
 				root.TryGetProperty("confirm", out var conf) && conf.GetBoolean()),
 			nameof(ChooseRewardCommand) => new ChooseRewardCommand(
 				playerId, root.GetProperty("optionIndex").GetInt32()),
+			nameof(ChooseDeckDrawCommand) => new ChooseDeckDrawCommand(
+				playerId, root.GetProperty("fromLawDeck").GetBoolean()),
 			nameof(UndoCommand) => new UndoCommand(playerId),
 			nameof(ResolveTokenSwapCommand) => new ResolveTokenSwapCommand(
 				playerId,

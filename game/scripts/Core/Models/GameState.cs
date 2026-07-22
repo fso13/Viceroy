@@ -48,6 +48,7 @@ public sealed class GameState
 	public PendingLevel5Choice? PendingLevel5 { get; set; }
 	public PendingLawResolution? PendingLaw { get; set; }
 	public PendingRewardChoice? PendingRewardChoice { get; set; }
+	public PendingDeckDraw? PendingDeckDraw { get; set; }
 	public PendingPassGems? PendingPassGems { get; set; }
 	public PendingTokenSwap? PendingTokenSwap { get; set; }
 

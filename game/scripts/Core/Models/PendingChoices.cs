@@ -8,6 +8,13 @@ public sealed class PendingRewardChoice
 	public List<string> OptionLabels { get; init; } = new();
 }
 
+/// <summary>Player must pick law deck vs small deck for each remaining card draw.</summary>
+public sealed class PendingDeckDraw
+{
+	public required int PlayerId { get; init; }
+	public int Remaining { get; set; }
+}
+
 public sealed class PendingPassGems
 {
 	public required int PlayerId { get; init; }

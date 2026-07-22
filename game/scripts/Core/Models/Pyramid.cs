@@ -292,6 +292,7 @@ public enum DevelopmentSubPhase
 	CollectingActions,
 	ChoosingLevel5Reward,
 	ChoosingReward,
+	ChoosingDeckDraw,
 	ResolvingLaw,
 	Done
 }

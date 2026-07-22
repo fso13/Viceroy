@@ -42,6 +42,8 @@ public sealed record LawPromptEvent(
 
 public sealed record RewardChoiceRequiredEvent(int PlayerId, IReadOnlyList<string> OptionLabels) : GameEvent;
 
+public sealed record DeckDrawRequiredEvent(int PlayerId, int Remaining) : GameEvent;
+
 public sealed record PassGemsRequiredEvent(int PlayerId, int Amount) : GameEvent;
 
 public sealed record CardDrawnEvent(int PlayerId, int DefinitionId, CardKind Kind) : GameEvent;

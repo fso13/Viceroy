@@ -29,8 +29,14 @@ public static class CardSymbolPainter
 		var wreath = new Color(0.45f, 0.7f, 0.35f);
 		canvas.DrawArc(c, s * 0.42f, -0.6f, Mathf.Pi + 0.6f, 12, wreath, s * 0.12f);
 		canvas.DrawArc(c, s * 0.42f, Mathf.Pi - 0.6f, Mathf.Tau + 0.6f, 12, wreath, s * 0.12f);
-		canvas.DrawString(font, c + new Vector2(0, fs * 0.35f), amount.ToString(),
-			HorizontalAlignment.Center, -1, fs, new Color(0.95f, 0.9f, 0.4f));
+
+		// width=-1 ignores HorizontalAlignment.Center; DrawString Y is baseline.
+		var text = amount.ToString();
+		var size = font.GetStringSize(text, HorizontalAlignment.Left, -1, fs);
+		var ascent = font.GetAscent(fs);
+		var descent = font.GetDescent(fs);
+		var pos = new Vector2(c.X - size.X * 0.5f, c.Y + (ascent - descent) * 0.5f);
+		canvas.DrawString(font, pos, text, HorizontalAlignment.Left, -1, fs, new Color(0.95f, 0.9f, 0.4f));
 	}
 
 	public static void DrawGems(CanvasItem canvas, Vector2 p, float s, int amount, Font font, int fs)

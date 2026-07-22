@@ -96,6 +96,13 @@ public static class GameSnapshot
 				OptionLabels = rc.OptionLabels.ToList()
 			}
 			: null,
+		PendingDeckDraw = s.PendingDeckDraw is { } dd
+			? new PendingDeckDrawDto
+			{
+				PlayerId = dd.PlayerId,
+				Remaining = dd.Remaining
+			}
+			: null,
 		PendingPassGems = s.PendingPassGems is { } pg
 			? new PendingPassGemsDto
 			{
@@ -229,6 +236,15 @@ public static class GameSnapshot
 			};
 		}
 
+		if (dto.PendingDeckDraw is { } dd)
+		{
+			state.PendingDeckDraw = new PendingDeckDraw
+			{
+				PlayerId = dd.PlayerId,
+				Remaining = dd.Remaining
+			};
+		}
+
 		if (dto.PendingPassGems is { } pg)
 		{
 			state.PendingPassGems = new PendingPassGems
@@ -323,6 +339,7 @@ public static class GameSnapshot
 		public PendingLevel5Dto? PendingLevel5 { get; set; }
 		public PendingLawDto? PendingLaw { get; set; }
 		public PendingRewardDto? PendingRewardChoice { get; set; }
+		public PendingDeckDrawDto? PendingDeckDraw { get; set; }
 		public PendingPassGemsDto? PendingPassGems { get; set; }
 		public PendingTokenSwapDto? PendingTokenSwap { get; set; }
 		public List<DeferredPlayDto> DeferredDevPlays { get; set; } = new();
@@ -463,6 +480,12 @@ public static class GameSnapshot
 		public int PlayerId { get; set; }
 		public int HostInstanceId { get; set; }
 		public List<string> OptionLabels { get; set; } = new();
+	}
+
+	sealed class PendingDeckDrawDto
+	{
+		public int PlayerId { get; set; }
+		public int Remaining { get; set; }
 	}
 
 	sealed class PendingPassGemsDto

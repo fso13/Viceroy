@@ -49,6 +49,9 @@ public sealed record ClaimPassGemsCommand(int PlayerId, GemColor? Color = null, 
 
 public sealed record ChooseRewardCommand(int PlayerId, int OptionIndex) : GameCommand(PlayerId);
 
+/// <summary>Pick law deck (true) or small character deck (false) for a pending card reward.</summary>
+public sealed record ChooseDeckDrawCommand(int PlayerId, bool FromLawDeck) : GameCommand(PlayerId);
+
 public sealed record UndoCommand(int PlayerId) : GameCommand(PlayerId);
 
 /// <summary>Law 67 multi-step: decline, pick own/other token, pay 3 gems, confirm.</summary>

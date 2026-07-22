@@ -391,29 +391,7 @@ public sealed class LawEffects
 		_raise(new LogEvent($"{player.DisplayName} кладёт на закон #{host.Card.DefinitionId} камней: {moved}"));
 	}
 
-	void DrawOneToHand(PlayerState player)
-	{
-		if (_state.LawDeck.Count > 0)
-		{
-			var id = _state.LawDeck[0];
-			_state.LawDeck.RemoveAt(0);
-			player.Hand.Add(_create(CardKind.Law, id));
-			_raise(new CardDrawnEvent(player.PlayerId, id, CardKind.Law));
-			NotifyCardTaken(player);
-		}
-		else if (_state.SmallDeck.Count > 0)
-		{
-			var id = _state.SmallDeck[0];
-			_state.SmallDeck.RemoveAt(0);
-			player.Hand.Add(_create(CardKind.Character, id));
-			_raise(new CardDrawnEvent(player.PlayerId, id, CardKind.Character));
-			NotifyCardTaken(player);
-		}
-		else
-		{
-			_raise(new LogEvent("Нет карт для взятия"));
-		}
-	}
+	void DrawOneToHand(PlayerState player) => _rewards.RequestCardDraws(player, 1);
 
 	/// <summary>Law 78 trigger after any card taken to hand (development phase).</summary>
 	public void NotifyCardTaken(PlayerState player)

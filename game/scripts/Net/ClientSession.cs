@@ -138,6 +138,7 @@ public sealed class ClientSession : IGameSession
 		ResolveLawCommand c => c with { PlayerId = playerId },
 		ClaimPassGemsCommand c => c with { PlayerId = playerId },
 		ChooseRewardCommand c => c with { PlayerId = playerId },
+		ChooseDeckDrawCommand c => c with { PlayerId = playerId },
 		UndoCommand => new UndoCommand(playerId),
 		ResolveTokenSwapCommand c => c with { PlayerId = playerId },
 		_ => command

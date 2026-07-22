@@ -88,6 +88,15 @@ public static class GameStateClone
 			};
 		}
 
+		if (src.PendingDeckDraw is { } dd)
+		{
+			dst.PendingDeckDraw = new PendingDeckDraw
+			{
+				PlayerId = dd.PlayerId,
+				Remaining = dd.Remaining
+			};
+		}
+
 		if (src.PendingPassGems is { } pg)
 		{
 			dst.PendingPassGems = new PendingPassGems

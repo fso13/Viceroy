@@ -227,6 +227,10 @@ public partial class GameScreenController : Control
 			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ChoosingReward
 			&& s.PendingRewardChoice?.PlayerId == localId;
 
+		var canDeckDraw = s.Phase == TurnPhase.Development
+			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ChoosingDeckDraw
+			&& s.PendingDeckDraw?.PlayerId == localId;
+
 		var canLaw = s.Phase == TurnPhase.Development
 			&& s.DevelopmentSubPhase == DevelopmentSubPhase.ResolvingLaw
 			&& s.PendingLaw?.PlayerId == localId;
@@ -259,6 +263,7 @@ public partial class GameScreenController : Control
 		RebuildRewardChoice(canReward ? s.PendingRewardChoice : null);
 		RebuildHand(local, cards, canDev);
 		RebuildLawPrompt(canLaw ? s : null, local, cards);
+		RebuildDeckDrawPrompt(canDeckDraw ? s.PendingDeckDraw : null, s);
 		RebuildTokenSwap(
 			s.PendingTokenSwap?.PlayerId == localId ? s : null,
 			local,
@@ -843,6 +848,36 @@ public partial class GameScreenController : Control
 			};
 			_rewardRow.AddChild(btn);
 		}
+	}
+
+	void RebuildDeckDrawPrompt(PendingDeckDraw? pending, GameState state)
+	{
+		if (pending is null)
+			return;
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		var pid = session.Session?.LocalPlayerId ?? 0;
+		var lawLeft = state.LawDeck.Count;
+		var smallLeft = state.SmallDeck.Count;
+		var body = pending.Remaining > 1
+			? $"Осталось взять: {pending.Remaining}"
+			: "Возьмите 1 карту";
+
+		var actions = new List<(string, Action, bool)>
+		{
+			($"Колода законов ({lawLeft})", () =>
+			{
+				session.Submit(new ChooseDeckDrawCommand(pid, FromLawDeck: true));
+				Refresh();
+			}, lawLeft == 0),
+			($"Малая колода ({smallLeft})", () =>
+			{
+				session.Submit(new ChooseDeckDrawCommand(pid, FromLawDeck: false));
+				Refresh();
+			}, smallLeft == 0)
+		};
+
+		_actionModal.ShowChoices("Взять карту", body, actions);
 	}
 
 	void RebuildLawPrompt(GameState? state, PlayerState local, CardDatabase? cards)

@@ -302,6 +302,9 @@ public sealed partial class GameEngine
 				case ChooseRewardCommand chooseReward:
 					ApplyRewardChoice(chooseReward.PlayerId, chooseReward.OptionIndex);
 					break;
+				case ChooseDeckDrawCommand chooseDeck:
+					ApplyDeckDrawChoice(chooseDeck.PlayerId, chooseDeck.FromLawDeck);
+					break;
 				case ClaimPassGemsCommand claimGems:
 					ApplyClaimPassGem(claimGems);
 					break;
@@ -359,6 +362,7 @@ public sealed partial class GameEngine
 		State.PendingLevel5 = null;
 		State.PendingLaw = null;
 		State.PendingRewardChoice = null;
+		State.PendingDeckDraw = null;
 		State.PendingPassGems = null;
 		State.PendingTokenSwap = null;
 		State.DeferredDevPlays.Clear();

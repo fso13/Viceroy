@@ -175,30 +175,130 @@ public sealed class RewardApplicator
 	{
 		for (var i = 0; i < amount; i++)
 		{
-			if (_state.LawDeck.Count > 0)
-			{
-				var id = _state.LawDeck[0];
-				_state.LawDeck.RemoveAt(0);
-				player.Hand.Add(_createInstance(CardKind.Law, id));
-				_raise(new CardDrawnEvent(player.PlayerId, id, CardKind.Law));
-				_raise(new LogEvent($"{player.DisplayName} тянет закон #{id}"));
-				_afterCardTaken?.Invoke(player);
-			}
-			else if (_state.SmallDeck.Count > 0)
-			{
-				var id = _state.SmallDeck[0];
-				_state.SmallDeck.RemoveAt(0);
-				player.Hand.Add(_createInstance(CardKind.Character, id));
-				_raise(new CardDrawnEvent(player.PlayerId, id, CardKind.Character));
-				var name = _db.Characters.TryGetValue(id, out var c) ? c.Name : $"#{id}";
-				_raise(new LogEvent($"{player.DisplayName} тянет «{name}» из малой колоды"));
-				_afterCardTaken?.Invoke(player);
-			}
-			else
+			if (!TryDrawOneAuto(player))
+				break;
+		}
+	}
+
+	/// <summary>
+	/// Queue card draws with a player choice between law deck and small deck when both are available.
+	/// Sets <see cref="GameState.PendingDeckDraw"/> when a choice is required.
+	/// </summary>
+	public void RequestCardDraws(PlayerState player, int amount)
+	{
+		if (amount <= 0)
+			return;
+
+		if (_state.PendingDeckDraw is { } existing && existing.PlayerId == player.PlayerId)
+		{
+			existing.Remaining += amount;
+			AdvanceDeckDrawQueue(player);
+			return;
+		}
+
+		_state.PendingDeckDraw = new PendingDeckDraw
+		{
+			PlayerId = player.PlayerId,
+			Remaining = amount
+		};
+		AdvanceDeckDrawQueue(player);
+	}
+
+	public void ResolveDeckDrawChoice(PlayerState player, bool fromLawDeck)
+	{
+		var pending = _state.PendingDeckDraw
+			?? throw new InvalidOperationException("Нет выбора колоды.");
+		if (pending.PlayerId != player.PlayerId)
+			throw new InvalidOperationException("Выбор колоды не ваш.");
+		if (pending.Remaining <= 0)
+			throw new InvalidOperationException("Нечего брать.");
+
+		var lawOk = _state.LawDeck.Count > 0;
+		var smallOk = _state.SmallDeck.Count > 0;
+		if (fromLawDeck && !lawOk)
+			throw new InvalidOperationException("Колода законов пуста.");
+		if (!fromLawDeck && !smallOk)
+			throw new InvalidOperationException("Малая колода пуста.");
+
+		DrawOneFrom(player, fromLawDeck);
+		pending.Remaining--;
+		AdvanceDeckDrawQueue(player);
+	}
+
+	void AdvanceDeckDrawQueue(PlayerState player)
+	{
+		var pending = _state.PendingDeckDraw;
+		if (pending is null || pending.PlayerId != player.PlayerId)
+			return;
+
+		while (pending.Remaining > 0)
+		{
+			// Law 78 (or similar) may open another prompt after a draw — pause the queue.
+			if (_state.PendingLaw is not null || _state.PendingTokenSwap is not null)
+				return;
+
+			var lawOk = _state.LawDeck.Count > 0;
+			var smallOk = _state.SmallDeck.Count > 0;
+			if (!lawOk && !smallOk)
 			{
 				_raise(new LogEvent($"{player.DisplayName}: колоды пусты, карта не взята"));
+				pending.Remaining = 0;
 				break;
 			}
+
+			if (lawOk && smallOk)
+			{
+				_raise(new DeckDrawRequiredEvent(player.PlayerId, pending.Remaining));
+				_raise(new LogEvent(
+					$"{player.DisplayName}: выберите колоду ({pending.Remaining} карт(ы))"));
+				return;
+			}
+
+			DrawOneFrom(player, fromLawDeck: lawOk);
+			pending.Remaining--;
 		}
+
+		if (pending.Remaining <= 0)
+			_state.PendingDeckDraw = null;
+	}
+
+	void DrawOneFrom(PlayerState player, bool fromLawDeck)
+	{
+		if (fromLawDeck)
+		{
+			var id = _state.LawDeck[0];
+			_state.LawDeck.RemoveAt(0);
+			player.Hand.Add(_createInstance(CardKind.Law, id));
+			_raise(new CardDrawnEvent(player.PlayerId, id, CardKind.Law));
+			_raise(new LogEvent($"{player.DisplayName} тянет закон #{id}"));
+			_afterCardTaken?.Invoke(player);
+			return;
+		}
+
+		var charId = _state.SmallDeck[0];
+		_state.SmallDeck.RemoveAt(0);
+		player.Hand.Add(_createInstance(CardKind.Character, charId));
+		_raise(new CardDrawnEvent(player.PlayerId, charId, CardKind.Character));
+		var name = _db.Characters.TryGetValue(charId, out var c) ? c.Name : $"#{charId}";
+		_raise(new LogEvent($"{player.DisplayName} тянет «{name}» из малой колоды"));
+		_afterCardTaken?.Invoke(player);
+	}
+
+	bool TryDrawOneAuto(PlayerState player)
+	{
+		if (_state.LawDeck.Count > 0)
+		{
+			DrawOneFrom(player, fromLawDeck: true);
+			return true;
+		}
+
+		if (_state.SmallDeck.Count > 0)
+		{
+			DrawOneFrom(player, fromLawDeck: false);
+			return true;
+		}
+
+		_raise(new LogEvent($"{player.DisplayName}: колоды пусты, карта не взята"));
+		return false;
 	}
 }

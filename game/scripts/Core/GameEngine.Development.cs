@@ -139,6 +139,7 @@ public sealed partial class GameEngine
 		State.PendingLaw is not null
 		|| State.PendingLevel5 is not null
 		|| State.PendingRewardChoice is not null
+		|| State.PendingDeckDraw is not null
 		|| State.PendingTokenSwap is not null;
 
 	void EnterPromptSubPhase()
@@ -165,6 +166,15 @@ public sealed partial class GameEngine
 				State.PendingLevel5.PlayerId,
 				State.PendingLevel5.CharacterDefinitionId));
 			Raise(new LogEvent("Выберите награду 5-го уровня: пакет 1–3 или 15 VP"));
+			return;
+		}
+
+		if (State.PendingDeckDraw is not null)
+		{
+			State.DevelopmentSubPhase = DevelopmentSubPhase.ChoosingDeckDraw;
+			var pending = State.PendingDeckDraw;
+			Raise(new DeckDrawRequiredEvent(pending.PlayerId, pending.Remaining));
+			Raise(new LogEvent("Выберите колоду: законов или малую"));
 		}
 	}
 
@@ -484,7 +494,7 @@ public sealed partial class GameEngine
 		}
 
 		if (pendingDraws > 0)
-			Rewards.DrawCardsAuto(player, pendingDraws);
+			Rewards.RequestCardDraws(player, pendingDraws);
 	}
 
 	void ApplyLevel5Choice(int playerId, bool takeFifteenVp)
@@ -511,7 +521,7 @@ public sealed partial class GameEngine
 			for (var l = 1; l <= 3; l++)
 				Rewards.Apply(player, host, def.GetLevel(l).Reward, ref needsLevel5, ref pendingDraws);
 			if (pendingDraws > 0)
-				Rewards.DrawCardsAuto(player, pendingDraws);
+				Rewards.RequestCardDraws(player, pendingDraws);
 			Raise(new LogEvent($"{player.DisplayName}: 5-й уровень → награды 1–3"));
 		}
 
@@ -537,9 +547,22 @@ public sealed partial class GameEngine
 		Rewards.Apply(player, host, pending.Options[optionIndex], ref needsLevel5, ref pendingDraws,
 			suppressChoicePrompt: true);
 		if (pendingDraws > 0)
-			Rewards.DrawCardsAuto(player, pendingDraws);
+			Rewards.RequestCardDraws(player, pendingDraws);
 
 		State.PendingRewardChoice = null;
+		ContinueAfterPrompt();
+	}
+
+	void ApplyDeckDrawChoice(int playerId, bool fromLawDeck)
+	{
+		EnsurePhase(TurnPhase.Development);
+		var pending = State.PendingDeckDraw
+			?? throw new InvalidOperationException("Нет выбора колоды.");
+		if (pending.PlayerId != playerId)
+			throw new InvalidOperationException("Выбор колоды не ваш.");
+
+		var player = State.GetPlayer(playerId);
+		Rewards.ResolveDeckDrawChoice(player, fromLawDeck);
 		ContinueAfterPrompt();
 	}
 
