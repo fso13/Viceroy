@@ -41,10 +41,14 @@ public partial class GameScreenController : Control
 	/// <summary>True while a hand card is selected and awaiting placement/target.</summary>
 	bool _buildMode;
 
-	static readonly Vector2 ThumbAuction = new(118, 118);
+	static Vector2 ThumbAuction = new(88, 88);
 	static Vector2 ThumbPyramid = new(100, 100);
-	static readonly Vector2 ThumbHand = new(126, 126);
-	const int CardGap = 12;
+	static Vector2 ThumbHand = new(110, 110);
+	const int CardGap = 4;
+
+	ScrollContainer _handScroll = null!;
+	HBoxContainer _tableRow = null!;
+	bool _resizeRefreshQueued;
 
 	public override void _Ready()
 	{
@@ -61,6 +65,8 @@ public partial class GameScreenController : Control
 		_rewardRow = GetNode<HBoxContainer>("%RewardRow");
 		_tokenSwapRow = GetNode<HBoxContainer>("%TokenSwapRow");
 		_handBox = GetNode<HBoxContainer>("%HandBox");
+		_handScroll = _handBox.GetParent<ScrollContainer>();
+		_tableRow = GetNode<HBoxContainer>("Margin/VBox/TableRow");
 		_level5Row = GetNode<HBoxContainer>("%Level5Row");
 		_lawPromptRow = GetNode<HBoxContainer>("%LawPromptRow");
 		_passAuctionButton = GetNode<Button>("%PassAuctionButton");
@@ -87,11 +93,48 @@ public partial class GameScreenController : Control
 
 		_handBox.AddThemeConstantOverride("separation", CardGap);
 		_auctionCards.AddThemeConstantOverride("separation", CardGap);
+		Resized += OnGameResized;
 
 		var session = GetNode<GameSessionAutoload>("/root/GameSession");
 		session.SessionEvent += AppendLog;
 		session.NoticeRequested += OnNoticeRequested;
-		Refresh();
+		UpdateThumbMetrics();
+		CallDeferred(MethodName.Refresh);
+	}
+
+	void OnGameResized()
+	{
+		if (_resizeRefreshQueued)
+			return;
+		_resizeRefreshQueued = true;
+		CallDeferred(MethodName.ApplyResizeRefresh);
+	}
+
+	void ApplyResizeRefresh()
+	{
+		_resizeRefreshQueued = false;
+		var prevAuction = ThumbAuction;
+		var prevHand = ThumbHand;
+		UpdateThumbMetrics();
+		if (ThumbAuction == prevAuction && ThumbHand == prevHand)
+			return;
+		var session = GetNodeOrNull<GameSessionAutoload>("/root/GameSession");
+		if (session?.Session is not null)
+			Refresh();
+	}
+
+	/// <summary>Size thumbs so auction (2 rows) + hand fit the left column without overflow.</summary>
+	void UpdateThumbMetrics()
+	{
+		var tableH = _tableRow.Size.Y;
+		if (tableH < 40f)
+			tableH = Mathf.Max(360f, Size.Y * 0.62f);
+
+		var auction = Mathf.Clamp(Mathf.Round(tableH * 0.20f), 70f, 96f);
+		var hand = Mathf.Clamp(Mathf.Round(tableH * 0.26f), 88f, 120f);
+		ThumbAuction = new Vector2(auction, auction);
+		ThumbHand = new Vector2(hand, hand);
+		_handScroll.CustomMinimumSize = new Vector2(0, hand + 28f);
 	}
 
 	void OnNoticeRequested(string title, string body)
@@ -193,11 +236,13 @@ public partial class GameScreenController : Control
 
 		_infoLabel.Text =
 			$"{local.DisplayName} | рука:{local.Hand.Count} | пирамида:{local.Pyramid.AllCards.Count()} " +
-			$"(VP:{local.VictoryPointTokens} Sci:{local.ScienceTokens} Mag:{local.MagicTokens} Def:{local.DefenseTokens})\n" +
-			$"Колоды big={s.BigDeck.Count} small={s.SmallDeck.Count} laws={s.LawDeck.Count} | {sealedMark}" +
-			(string.IsNullOrEmpty(s.LastRewardSummary) ? "" : $"\n★ {s.LastRewardSummary}");
+			$"(VP:{local.VictoryPointTokens} Sci:{local.ScienceTokens} Mag:{local.MagicTokens} Def:{local.DefenseTokens}) · " +
+			$"колоды {s.BigDeck.Count}/{s.SmallDeck.Count}/{s.LawDeck.Count} · {sealedMark}" +
+			(string.IsNullOrEmpty(s.LastRewardSummary) ? "" : $" · ★ {s.LastRewardSummary}");
 
 		RebuildGemStatusRow(local);
+		UpdateThumbMetrics();
+
 
 		var canBid = s.Phase == TurnPhase.Auction
 			&& s.AuctionSubPhase == AuctionSubPhase.CollectingBids
@@ -322,24 +367,31 @@ public partial class GameScreenController : Control
 
 		var cardCount = Math.Max(1, local.Pyramid.AllCards.Count());
 		var height = Math.Max(1, local.Pyramid.Height);
-		// Prefer large cards; shrink only when the base row gets wide.
+		var baseCountHint = Math.Max(1, local.Pyramid.BaseCount);
+		// Prefer large cards; shrink when the base row would overflow the column.
 		var size = height >= 5 || cardCount > 14 ? 72f
 			: cardCount <= 4 ? 110f
 			: cardCount <= 8 ? 100f
 			: cardCount <= 12 ? 88f
 			: 78f;
+		var availW = _pyramidCards.Size.X;
+		if (availW < 40f)
+			availW = Mathf.Max(280f, Size.X * 0.48f);
+		var maxByWidth = (availW - 24f) / Math.Max(1, baseCountHint + (canDev ? 1 : 0));
+		size = Mathf.Clamp(Mathf.Min(size, maxByWidth), 56f, 120f);
 		ThumbPyramid = new Vector2(size, size);
 
 		var legal = canDev ? local.Pyramid.LegalPlacements() : new List<(int Level, int Index)>();
 		var legalSet = legal.ToHashSet();
 		var maxLevel = Math.Max(1, Math.Max(local.Pyramid.Height, legal.Count == 0 ? 1 : legal.Max(x => x.Level)));
 
-		_pyramidCards.AddChild(new Label
+		if (canDev)
 		{
-			Text = canDev
-				? "Перетащите карту из руки на зелёный слот"
-				: "Пирамида"
-		});
+			_pyramidCards.AddChild(new Label
+			{
+				Text = "Перетащите карту из руки на зелёный слот"
+			});
+		}
 
 		if (_pendingTuckFreeDrop is { } pending && canDev)
 			RebuildTuckFreePicker(local, cards, pending);
@@ -683,7 +735,7 @@ public partial class GameScreenController : Control
 				SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
 				SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
 			};
-			col.AddThemeConstantOverride("separation", 6);
+			col.AddThemeConstantOverride("separation", 2);
 
 			CardThumb MakeAuctionThumb(int? id, string emptyTag)
 			{
@@ -715,6 +767,7 @@ public partial class GameScreenController : Control
 			var hasCards = slot.AvailableCount > 0;
 			var canAfford = local.Screen.CanPay(color);
 			var bidEnabled = canBid && hasCards && canAfford;
+			var gemSize = Mathf.Clamp(ThumbAuction.X * 0.38f, 28f, 40f);
 			var gemBtn = new Button
 			{
 				Icon = GemIcons.Get(color),
@@ -728,11 +781,11 @@ public partial class GameScreenController : Control
 							? $"{GemIcons.ColorName(color)}: нет карт"
 							: $"{GemIcons.ColorName(color)}: нет камня за ширмой",
 				Disabled = !bidEnabled,
-				CustomMinimumSize = new Vector2(48, 48),
+				CustomMinimumSize = new Vector2(gemSize, gemSize),
 				SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
 				MouseDefaultCursorShape = bidEnabled ? Control.CursorShape.PointingHand : Control.CursorShape.Arrow
 			};
-			gemBtn.AddThemeConstantOverride("icon_max_width", 40);
+			gemBtn.AddThemeConstantOverride("icon_max_width", (int)(gemSize * 0.85f));
 			if (bidEnabled)
 			{
 				var bidColor = color;

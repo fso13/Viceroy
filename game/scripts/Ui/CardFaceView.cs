@@ -145,11 +145,11 @@ public partial class CardFaceView : Control
 	void DrawCharacter(CharacterCard card, Vector2 size)
 	{
 		DrawRect(new Rect2(Vector2.Zero, size), Parchment, true);
-		var sectorR = size.X * 0.22f;
+		var sectorR = size.X * 0.2f;
 		var font = ThemeDB.FallbackFont;
 
-		var topPad = sectorR * 0.55f;
-		var bottomPad = sectorR * 0.95f;
+		var topPad = sectorR * 0.45f;
+		var bottomPad = sectorR * 0.85f;
 		var rowArea = new Rect2(
 			size.X * 0.06f,
 			topPad,
@@ -158,7 +158,7 @@ public partial class CardFaceView : Control
 
 		var levels = card.Levels.OrderByDescending(l => l.Level).ToList();
 		var rowH = rowArea.Size.Y / Math.Max(1, levels.Count);
-		var fs = FontSize(size, 0.065f);
+		var fs = FontSize(size, 0.075f);
 
 		for (var i = 0; i < levels.Count; i++)
 		{
@@ -204,18 +204,19 @@ public partial class CardFaceView : Control
 
 	void DrawLevelRow(LevelReward level, Rect2 row, Font font, int fontSize)
 	{
-		var gemR = Mathf.Min(row.Size.Y * 0.32f, row.Size.X * 0.08f);
+		var gemR = Mathf.Min(row.Size.Y * 0.4f, row.Size.X * 0.11f);
 		var gemCenter = new Vector2(row.Position.X + gemR + 2f, row.Position.Y + row.Size.Y * 0.5f);
 		DrawCircle(gemCenter, gemR, CardSymbolPainter.GemTint(level.Cost));
 		DrawArc(gemCenter, gemR, 0, Mathf.Tau, 16, new Color(0, 0, 0, 0.45f), 1.2f);
 
-		var colonX = gemCenter.X + gemR + 4f;
+		var colonX = gemCenter.X + gemR + 3f;
 		DrawString(font, new Vector2(colonX, gemCenter.Y + fontSize * 0.35f), ":",
 			HorizontalAlignment.Left, -1, fontSize, InkDim);
 
-		var iconSize = Mathf.Min(row.Size.Y * 0.55f, row.Size.X * 0.12f);
-		var rewardOrigin = new Vector2(colonX + fontSize * 0.7f, row.Position.Y + (row.Size.Y - iconSize) * 0.5f);
-		DrawReward(level.Reward, rewardOrigin, iconSize, font, fontSize, row.End.X - 2f);
+		var iconSize = Mathf.Min(row.Size.Y * 0.78f, row.Size.X * 0.2f);
+		var iconFs = Math.Max(fontSize, (int)(iconSize * 0.42f));
+		var rewardOrigin = new Vector2(colonX + fontSize * 0.55f, row.Position.Y + (row.Size.Y - iconSize) * 0.5f);
+		DrawReward(level.Reward, rewardOrigin, iconSize, font, iconFs, row.End.X - 2f);
 	}
 
 	float DrawReward(Reward reward, Vector2 origin, float iconSize, Font font, int fontSize, float maxX)

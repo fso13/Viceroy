@@ -1,4 +1,3 @@
-using System.Text;
 using Godot;
 using Namestnik.Core.Models;
 
@@ -9,7 +8,7 @@ public static class PyramidStats
 {
 	public static string Format(PlayerState player)
 	{
-		var sb = new StringBuilder();
+		var parts = new List<string>();
 
 		var infiniteCards = player.Pyramid.AllCards.Where(c => c.InfiniteGem is not null).ToList();
 		var available = infiniteCards
@@ -20,35 +19,39 @@ public static class PyramidStats
 			.ToList();
 		var used = infiniteCards.Count(c => c.InfiniteUsedThisTurn);
 		if (available.Count == 0 && infiniteCards.Count == 0)
-			sb.AppendLine("∞ камни: нет");
+			parts.Add("∞ камни: нет");
 		else
 		{
 			var availText = available.Count > 0 ? string.Join(", ", available) : "нет свободных";
-			sb.AppendLine(used > 0
-				? $"∞ камни: {availText} (использовано сегодня: {used})"
+			parts.Add(used > 0
+				? $"∞ камни: {availText} (исп. {used})"
 				: $"∞ камни: {availText}");
 		}
 
 		var magic = player.MagicTokens;
 		var bonusMag = player.Pyramid.AllCards.Sum(c => c.BonusMagic);
 		var magicVp = magic > 0 && bonusMag > 0 ? magic * bonusMag : 0;
-		sb.AppendLine($"Магия: {magic} свит. × {bonusMag} VP/свит. = {magicVp} VP");
+		parts.Add($"Магия: {magic}×{bonusMag}={magicVp} VP");
 
 		var sci = player.ScienceTokens;
 		var def = player.DefenseTokens;
 		var vp = player.VictoryPointTokens;
-		sb.AppendLine($"Наука: {sci} | Защита: {def} | VP-жетоны: {vp}");
+		parts.Add($"Наука: {sci}");
+		parts.Add($"Защита: {def}");
+		parts.Add($"VP: {vp}");
 
 		var sets = Math.Min(def, Math.Min(magic, sci));
-		sb.AppendLine($"Наборы (защ/маг/наук): {sets} × 12 = {sets * 12} VP");
+		parts.Add($"Наборы: {sets}×12={sets * 12}");
 
 		var parked = player.Pyramid.AllCards.Sum(c => c.ParkedGems);
 		var tucked = player.Pyramid.AllCards.Sum(c => c.TuckedCards.Count);
-		if (parked > 0 || tucked > 0)
-			sb.AppendLine($"Парковка камней: {parked} | Подложено карт: {tucked}");
+		if (parked > 0)
+			parts.Add($"Парковка: {parked}");
+		if (tucked > 0)
+			parts.Add($"Подложено: {tucked}");
 
-		sb.Append($"Атака за ширмой: {player.Screen.AttackTokens}");
-		return sb.ToString();
+		parts.Add($"Атака: {player.Screen.AttackTokens}");
+		return string.Join("  ·  ", parts);
 	}
 
 	public static List<(string Text, Color Color)> TokenBadges(PyramidCard pc)

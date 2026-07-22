@@ -8,8 +8,8 @@ public partial class SymbolLegendBar : HFlowContainer
 {
 	public override void _Ready()
 	{
-		AddThemeConstantOverride("h_separation", 10);
-		AddThemeConstantOverride("v_separation", 4);
+		AddThemeConstantOverride("h_separation", 8);
+		AddThemeConstantOverride("v_separation", 2);
 		Build();
 	}
 
@@ -19,31 +19,32 @@ public partial class SymbolLegendBar : HFlowContainer
 			child.QueueFree();
 
 		AddChild(MakeTitle("Легенда:"));
-		AddEntry(LegendGlyphKind.CostGem, "стоимость уровня");
-		AddEntry(LegendGlyphKind.Vp, "очки славы");
-		AddEntry(LegendGlyphKind.Science, "наука (шестерёнка)");
-		AddEntry(LegendGlyphKind.Magic, "магия (свиток)");
-		AddEntry(LegendGlyphKind.Attack, "атака (меч)");
-		AddEntry(LegendGlyphKind.Defense, "защита (щит)");
-		AddEntry(LegendGlyphKind.Gems, "камни из резерва");
-		AddEntry(LegendGlyphKind.Card, "взять карту");
-		AddEntry(LegendGlyphKind.Infinite, "неисчерпаемый камень");
-		AddEntry(LegendGlyphKind.BonusMagic, "бонус магии");
-		AddEntry(LegendGlyphKind.BonusCircle, "бонус одноцветного круга");
-		AddEntry(LegendGlyphKind.Choice, "выбор одной из наград");
+		AddEntry(LegendGlyphKind.CostGem, "ур.", "стоимость уровня");
+		AddEntry(LegendGlyphKind.Vp, "слава", "очки славы");
+		AddEntry(LegendGlyphKind.Science, "наука", "наука (шестерёнка)");
+		AddEntry(LegendGlyphKind.Magic, "магия", "магия (свиток)");
+		AddEntry(LegendGlyphKind.Attack, "атака", "атака (меч)");
+		AddEntry(LegendGlyphKind.Defense, "защита", "защита (щит)");
+		AddEntry(LegendGlyphKind.Gems, "камни", "камни из резерва");
+		AddEntry(LegendGlyphKind.Card, "карта", "взять карту");
+		AddEntry(LegendGlyphKind.Infinite, "∞", "неисчерпаемый камень");
+		AddEntry(LegendGlyphKind.BonusMagic, "+маг.", "бонус магии");
+		AddEntry(LegendGlyphKind.BonusCircle, "+круг", "бонус одноцветного круга");
+		AddEntry(LegendGlyphKind.Choice, "выбор", "выбор одной из наград");
 	}
 
-	void AddEntry(LegendGlyphKind kind, string caption)
+	void AddEntry(LegendGlyphKind kind, string caption, string tip)
 	{
-		var row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 4);
+		var row = new HBoxContainer { TooltipText = tip };
+		row.AddThemeConstantOverride("separation", 2);
 		row.AddChild(new LegendGlyph { Kind = kind });
 		var label = new Label
 		{
-			Text = "— " + caption,
-			VerticalAlignment = VerticalAlignment.Center
+			Text = caption,
+			VerticalAlignment = VerticalAlignment.Center,
+			TooltipText = tip
 		};
-		label.AddThemeFontSizeOverride("font_size", 11);
+		label.AddThemeFontSizeOverride("font_size", 10);
 		label.AddThemeColorOverride("font_color", new Color(0.72f, 0.76f, 0.68f));
 		row.AddChild(label);
 		AddChild(row);
@@ -56,7 +57,7 @@ public partial class SymbolLegendBar : HFlowContainer
 			Text = text,
 			VerticalAlignment = VerticalAlignment.Center
 		};
-		label.AddThemeFontSizeOverride("font_size", 11);
+		label.AddThemeFontSizeOverride("font_size", 10);
 		label.AddThemeColorOverride("font_color", new Color(0.8f, 0.85f, 0.75f));
 		return label;
 	}
@@ -82,13 +83,13 @@ partial class LegendGlyph : Control
 {
 	public LegendGlyphKind Kind { get; set; }
 
-	const float SizePx = 22f;
+	const float SizePx = 18f;
 
 	public override void _Ready()
 	{
 		var width = Kind is LegendGlyphKind.Gems or LegendGlyphKind.Infinite
 			or LegendGlyphKind.BonusMagic or LegendGlyphKind.BonusCircle
-			? SizePx + 14f
+			? SizePx + 12f
 			: SizePx;
 		CustomMinimumSize = new Vector2(width, SizePx);
 		MouseFilter = MouseFilterEnum.Ignore;
@@ -103,7 +104,7 @@ partial class LegendGlyph : Control
 	public override void _Draw()
 	{
 		var font = ThemeDB.FallbackFont;
-		const int fs = 10;
+		const int fs = 9;
 		var origin = new Vector2(1, (Size.Y - SizePx) * 0.5f);
 		switch (Kind)
 		{
