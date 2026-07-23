@@ -12,6 +12,8 @@ public enum TurnPhase
 	Setup,
 	Auction,
 	Development,
+	/// <summary>End-game: paint pyramid sectors with screen gems before scoring.</summary>
+	Recolor,
 	GameOver
 }
 

@@ -72,6 +72,9 @@ public sealed class PlayerState
 	public bool AcquiredAuctionCardThisTurn { get; set; }
 	public bool ActedThisDevelopmentRound { get; set; }
 
+	/// <summary>End-game recolor: player confirmed painting and is ready for scoring.</summary>
+	public bool HasFinishedRecolor { get; set; }
+
 	/// <summary>Law 69: skip next auction and take a face-up card instead.</summary>
 	public bool SkipNextAuction { get; set; }
 

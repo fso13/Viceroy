@@ -142,7 +142,8 @@ public static class GameStateClone
 			HasPassedDevelopment = src.HasPassedDevelopment,
 			AcquiredAuctionCardThisTurn = src.AcquiredAuctionCardThisTurn,
 			ActedThisDevelopmentRound = src.ActedThisDevelopmentRound,
-			SkipNextAuction = src.SkipNextAuction
+			SkipNextAuction = src.SkipNextAuction,
+			HasFinishedRecolor = src.HasFinishedRecolor
 		};
 		CopyWallet(src.Screen, dst.Screen);
 		foreach (var card in src.Hand)

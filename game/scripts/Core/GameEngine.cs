@@ -311,6 +311,15 @@ public sealed partial class GameEngine
 				case ResolveTokenSwapCommand swap:
 					ApplyTokenSwap(swap);
 					break;
+				case RecolorSectorCommand recolor:
+					ApplyRecolorSector(recolor);
+					break;
+				case ClearSectorRecolorCommand clearRecolor:
+					ApplyClearSectorRecolor(clearRecolor);
+					break;
+				case ConfirmRecolorCommand confirmRecolor:
+					ApplyConfirmRecolor(confirmRecolor);
+					break;
 				case UndoCommand:
 					error = "Undo обрабатывается сессией.";
 					return false;
@@ -335,7 +344,7 @@ public sealed partial class GameEngine
 		// End after the final turn finishes, or after turn 12.
 		if (State.FinalTurnInProgress || State.Turn >= GameState.MaxTurns)
 		{
-			FinalizeMatch();
+			BeginRecolorPhase();
 			return;
 		}
 

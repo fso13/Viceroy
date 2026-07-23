@@ -222,6 +222,12 @@ visible = false
 layout_mode = 2
 text = "Отмена"
 
+[node name="ConfirmRecolorButton" type="Button" parent="Margin/VBox/DevRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Готово (перекраска)"
+
 [node name="Level5Row" type="HBoxContainer" parent="Margin/VBox"]
 unique_name_in_owner = true
 visible = false

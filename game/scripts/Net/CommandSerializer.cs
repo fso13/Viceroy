@@ -98,6 +98,22 @@ public static class CommandSerializer
 				fromLawDeck = c.FromLawDeck
 			},
 			UndoCommand c => new { type = nameof(UndoCommand), playerId = c.PlayerId },
+			RecolorSectorCommand c => new
+			{
+				type = nameof(RecolorSectorCommand),
+				playerId = c.PlayerId,
+				cardInstanceId = c.CardInstanceId,
+				corner = c.Corner,
+				color = c.Color.ToString()
+			},
+			ClearSectorRecolorCommand c => new
+			{
+				type = nameof(ClearSectorRecolorCommand),
+				playerId = c.PlayerId,
+				cardInstanceId = c.CardInstanceId,
+				corner = c.Corner
+			},
+			ConfirmRecolorCommand c => new { type = nameof(ConfirmRecolorCommand), playerId = c.PlayerId },
 			ResolveTokenSwapCommand c => new
 			{
 				type = nameof(ResolveTokenSwapCommand),
@@ -163,6 +179,16 @@ public static class CommandSerializer
 			nameof(ChooseDeckDrawCommand) => new ChooseDeckDrawCommand(
 				playerId, root.GetProperty("fromLawDeck").GetBoolean()),
 			nameof(UndoCommand) => new UndoCommand(playerId),
+			nameof(RecolorSectorCommand) => new RecolorSectorCommand(
+				playerId,
+				root.GetProperty("cardInstanceId").GetInt32(),
+				root.GetProperty("corner").GetString()!,
+				Enum.Parse<GemColor>(root.GetProperty("color").GetString()!)),
+			nameof(ClearSectorRecolorCommand) => new ClearSectorRecolorCommand(
+				playerId,
+				root.GetProperty("cardInstanceId").GetInt32(),
+				root.GetProperty("corner").GetString()!),
+			nameof(ConfirmRecolorCommand) => new ConfirmRecolorCommand(playerId),
 			nameof(ResolveTokenSwapCommand) => new ResolveTokenSwapCommand(
 				playerId,
 				root.TryGetProperty("decline", out var dec) && dec.GetBoolean(),

@@ -9,6 +9,9 @@ mono_crash.*.json
 bin/
 obj/
 
+# Godot export artifacts (binaries exceed GitHub limits)
+export/
+
 # IDE
 .vs/
 .vscode/

@@ -28,9 +28,11 @@ public partial class GameScreenController : Control
 	Button _attackButton = null!;
 	Button _undoButton = null!;
 	Button _cancelBuildButton = null!;
+	Button _confirmRecolorButton = null!;
 	CardZoomOverlay _zoom = null!;
 	NoticeOverlay _notice = null!;
 	ActionModalOverlay _actionModal = null!;
+	ScoreboardOverlay _scoreboard = null!;
 
 	readonly HashSet<int> _lawReturnSelection = new();
 	readonly HashSet<int> _law72TuckSelection = new();
@@ -40,6 +42,9 @@ public partial class GameScreenController : Control
 
 	/// <summary>True while a hand card is selected and awaiting placement/target.</summary>
 	bool _buildMode;
+
+	/// <summary>Selected gem color for end-game sector painting.</summary>
+	GemColor? _recolorColor;
 
 	static Vector2 ThumbAuction = new(88, 88);
 	static Vector2 ThumbPyramid = new(100, 100);
@@ -74,12 +79,14 @@ public partial class GameScreenController : Control
 		_attackButton = GetNode<Button>("%AttackButton");
 		_undoButton = GetNode<Button>("%UndoButton");
 		_cancelBuildButton = GetNode<Button>("%CancelBuildButton");
+		_confirmRecolorButton = GetNode<Button>("%ConfirmRecolorButton");
 
 		_passAuctionButton.Pressed += OnPassAuction;
 		_passDevButton.Pressed += OnPassDev;
 		_attackButton.Pressed += OnAttack;
 		_undoButton.Pressed += OnUndo;
 		_cancelBuildButton.Pressed += OnCancelBuild;
+		_confirmRecolorButton.Pressed += OnConfirmRecolor;
 		GetNode<Button>("%MenuButton").Pressed += OnMenu;
 		GetNode<Button>("%Level5Bundle").Pressed += () => ChooseLevel5(false);
 		GetNode<Button>("%Level5Fifteen").Pressed += () => ChooseLevel5(true);
@@ -90,6 +97,8 @@ public partial class GameScreenController : Control
 		AddChild(_notice);
 		_actionModal = new ActionModalOverlay();
 		AddChild(_actionModal);
+		_scoreboard = new ScoreboardOverlay();
+		AddChild(_scoreboard);
 
 		_handBox.AddThemeConstantOverride("separation", CardGap);
 		_auctionCards.AddThemeConstantOverride("separation", CardGap);
@@ -173,6 +182,7 @@ public partial class GameScreenController : Control
 		var engine = session.Session?.Engine;
 		if (engine is null)
 		{
+			_scoreboard.HideBoard();
 			_phaseLabel.Text = session.ActiveMode == GameMode.Client
 				? "Клиент (ожидание снапшота от хоста)"
 				: "Нет активной партии";
@@ -189,16 +199,20 @@ public partial class GameScreenController : Control
 			_rewardRow.Visible = false;
 			_tokenSwapRow.Visible = false;
 			_cancelBuildButton.Visible = false;
+			_confirmRecolorButton.Visible = false;
 			UpdateUndoButton(session);
 			return;
 		}
 
 		var s = engine.State;
 		var cards = session.Cards;
+		var localId = session.Session!.LocalPlayerId;
 		if (s.Phase == TurnPhase.GameOver && s.Result is { } result)
 		{
-			_phaseLabel.Text = result.IsDraw ? "Ничья" : $"Победитель: {result.Scores.First(x => result.WinnerIds.Contains(x.PlayerId)).DisplayName}";
-			_infoLabel.Text = string.Join("\n", result.Scores.Select(sc => sc.ToString()));
+			_phaseLabel.Text = result.IsDraw
+				? "Ничья"
+				: $"Победитель: {result.Scores.First(x => result.WinnerIds.Contains(x.PlayerId)).DisplayName}";
+			_infoLabel.Text = "Партия завершена — итоговая таблица";
 			ClearContainer(_pyramidCards);
 			ClearContainer(_auctionCards);
 			SetAuctionUi(false, false);
@@ -211,10 +225,63 @@ public partial class GameScreenController : Control
 			_tokenSwapRow.Visible = false;
 			_cancelBuildButton.Visible = false;
 			_passDevButton.Disabled = true;
+			_confirmRecolorButton.Visible = false;
 			ClearBuildDraft();
+			UpdateUndoButton(session);
+			_scoreboard.ShowResult(result, localId, OnMenu);
+			return;
+		}
+
+		_scoreboard.HideBoard();
+
+		var canRecolor = s.Phase == TurnPhase.Recolor
+			&& !s.GetPlayer(localId).HasFinishedRecolor;
+
+		if (s.Phase == TurnPhase.Recolor)
+		{
+			var localRecolor = s.GetPlayer(localId);
+			_phaseLabel.Text = canRecolor
+				? "Перекраска секторов — выберите цвет камня и нажмите на сектор карты"
+				: "Перекраска — ожидание других игроков";
+			_infoLabel.Text = canRecolor
+				? "ЛКМ по сектору — окрасить выбранным цветом · ПКМ — снять окраску · затем «Готово»"
+				: "Вы завершили перекраску";
+			ClearContainer(_auctionCards);
+			SetAuctionUi(false, false);
+			_handBox.Visible = false;
+			_level5Row.Visible = false;
+			_lawPromptRow.Visible = false;
+			_actionModal.HideModal();
+			_passGemsRow.Visible = false;
+			_rewardRow.Visible = false;
+			_tokenSwapRow.Visible = false;
+			_cancelBuildButton.Visible = false;
+			_passDevButton.Disabled = true;
+			_passDevButton.Visible = false;
+			_confirmRecolorButton.Visible = canRecolor;
+			_confirmRecolorButton.Disabled = !canRecolor;
+			ClearBuildDraft();
+			if (canRecolor && _recolorColor is null)
+			{
+				foreach (GemColor c in Enum.GetValues<GemColor>())
+				{
+					if (localRecolor.Screen[c] > 0)
+					{
+						_recolorColor = c;
+						break;
+					}
+				}
+			}
+
+			RebuildGemStatusRow(localRecolor, canRecolor);
+			RebuildPyramidBoard(localRecolor, cards, canDev: false, canRecolor: canRecolor);
 			UpdateUndoButton(session);
 			return;
 		}
+
+		_passDevButton.Visible = true;
+		_confirmRecolorButton.Visible = false;
+		_recolorColor = null;
 
 		_phaseLabel.Text = $"Ход {s.Turn}/{GameState.MaxTurns} — {s.Phase}" +
 			(s.FinalTurnInProgress ? " [ФИНАЛ]" : "") +
@@ -225,7 +292,6 @@ public partial class GameScreenController : Control
 				? $" / раунд {s.DevelopmentRound} / {s.DevelopmentSubPhase}"
 				: "");
 
-		var localId = session.Session!.LocalPlayerId;
 		var local = s.GetPlayer(localId);
 
 		var sealedMark = s.Phase == TurnPhase.Auction
@@ -295,6 +361,8 @@ public partial class GameScreenController : Control
 
 		SetAuctionUi(canBid, canChoose);
 		_passDevButton.Disabled = !canDev;
+		_passDevButton.Visible = true;
+		_confirmRecolorButton.Visible = false;
 		_handBox.Visible = true;
 		_level5Row.Visible = canLevel5;
 		_lawPromptRow.Visible = false;
@@ -317,21 +385,68 @@ public partial class GameScreenController : Control
 		UpdateUndoButton(session);
 	}
 
-	void RebuildGemStatusRow(PlayerState local)
+	void RebuildGemStatusRow(PlayerState local, bool recolorPick = false)
 	{
 		ClearContainer(_gemStatusRow);
-		_gemStatusRow.AddChild(new Label { Text = "За ширмой:" });
+		_gemStatusRow.AddChild(new Label
+		{
+			Text = recolorPick ? "Цвет кисти:" : "За ширмой:",
+			VerticalAlignment = VerticalAlignment.Center
+		});
 		foreach (GemColor color in Enum.GetValues<GemColor>())
 		{
-			_gemStatusRow.AddChild(GemIcons.MakeRect(color, 22f));
-			_gemStatusRow.AddChild(new Label
+			var count = local.Screen[color];
+			if (recolorPick)
 			{
-				Text = $"×{local.Screen[color]}",
-				VerticalAlignment = VerticalAlignment.Center
-			});
+				var selected = _recolorColor == color;
+				var btn = new Button
+				{
+					Icon = GemIcons.Get(color),
+					ExpandIcon = true,
+					Text = $"×{count}",
+					Disabled = count <= 0,
+					ToggleMode = true,
+					ButtonPressed = selected,
+					TooltipText = count <= 0
+						? $"{GemIcons.ColorName(color)}: нет камней"
+						: $"Окрашивать в {GemIcons.ColorName(color)}",
+					CustomMinimumSize = new Vector2(56, 32),
+					MouseDefaultCursorShape = count > 0
+						? Control.CursorShape.PointingHand
+						: Control.CursorShape.Arrow
+				};
+				btn.AddThemeConstantOverride("icon_max_width", 22);
+				if (count > 0)
+				{
+					var captured = color;
+					btn.Pressed += () =>
+					{
+						_recolorColor = captured;
+						Refresh();
+					};
+				}
+
+				_gemStatusRow.AddChild(btn);
+			}
+			else
+			{
+				_gemStatusRow.AddChild(GemIcons.MakeRect(color, 22f));
+				_gemStatusRow.AddChild(new Label
+				{
+					Text = $"×{count}",
+					VerticalAlignment = VerticalAlignment.Center
+				});
+			}
 		}
 
-		_gemStatusRow.AddChild(new Label { Text = $"  атака ×{local.Screen.AttackTokens}" });
+		if (!recolorPick)
+			_gemStatusRow.AddChild(new Label { Text = $"  атака ×{local.Screen.AttackTokens}" });
+		else if (_recolorColor is GemColor brush)
+			_gemStatusRow.AddChild(new Label
+			{
+				Text = $"  кисть: {GemIcons.ColorName(brush)}",
+				VerticalAlignment = VerticalAlignment.Center
+			});
 	}
 
 	void UpdateUndoButton(GameSessionAutoload session)
@@ -360,7 +475,7 @@ public partial class GameScreenController : Control
 	/// <summary>After dropping law #74 on a slot, wait for free-card pick.</summary>
 	(int HandIndex, int Level, int Index)? _pendingTuckFreeDrop;
 
-	void RebuildPyramidBoard(PlayerState local, CardDatabase? cards, bool canDev)
+	void RebuildPyramidBoard(PlayerState local, CardDatabase? cards, bool canDev, bool canRecolor = false)
 	{
 		ClearContainer(_pyramidCards);
 		_pyramidStatsLabel.Text = PyramidStats.Format(local);
@@ -390,6 +505,13 @@ public partial class GameScreenController : Control
 			_pyramidCards.AddChild(new Label
 			{
 				Text = "Перетащите карту из руки на зелёный слот"
+			});
+		}
+		else if (canRecolor)
+		{
+			_pyramidCards.AddChild(new Label
+			{
+				Text = "Окрасьте сектора кругов камнями за ширмой (одноцветный круг при этом камень не даёт)"
 			});
 		}
 
@@ -427,7 +549,7 @@ public partial class GameScreenController : Control
 				SizeFlagsHorizontal = Control.SizeFlags.Fill
 			};
 			rowBox.AddThemeConstantOverride("separation", hGap);
-			BuildUpperRow(rowBox, local, cards, canDev, legalSet, level, cell, baseCount);
+			BuildUpperRow(rowBox, local, cards, canDev, canRecolor, legalSet, level, cell, baseCount);
 			rowWrap.AddChild(rowBox);
 			stack.AddChild(rowWrap);
 		}
@@ -439,7 +561,7 @@ public partial class GameScreenController : Control
 			CustomMinimumSize = new Vector2(baseWidth, cell.Y)
 		};
 		baseCards.AddThemeConstantOverride("separation", hGap);
-		BuildBaseCards(baseCards, local, cards, canDev, legalSet, cell);
+		BuildBaseCards(baseCards, local, cards, canDev, canRecolor, legalSet, cell);
 		stack.AddChild(baseCards);
 
 		// Side L1 drops sit beside the stack, pinned to the base row (bottom).
@@ -474,13 +596,14 @@ public partial class GameScreenController : Control
 		PlayerState local,
 		CardDatabase? cards,
 		bool canDev,
+		bool canRecolor,
 		HashSet<(int Level, int Index)> legalSet,
 		Vector2 cell)
 	{
 		if (local.Pyramid.Rows.TryGetValue(1, out var row))
 		{
 			foreach (var pc in row.OrderBy(c => c.Index))
-				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
+				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, canRecolor, pc));
 		}
 		else if (!canDev || !legalSet.Contains((1, 0)))
 		{
@@ -493,6 +616,7 @@ public partial class GameScreenController : Control
 		PlayerState local,
 		CardDatabase? cards,
 		bool canDev,
+		bool canRecolor,
 		HashSet<(int Level, int Index)> legalSet,
 		int level,
 		Vector2 cell,
@@ -520,7 +644,7 @@ public partial class GameScreenController : Control
 		{
 			if (existingByVisual.TryGetValue(visual, out var pc))
 			{
-				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, pc));
+				rowBox.AddChild(MakePyramidCardThumb(local, cards, canDev, canRecolor, pc));
 			}
 			else if (canDev && legalByVisual.Contains(visual))
 			{
@@ -538,7 +662,12 @@ public partial class GameScreenController : Control
 		}
 	}
 
-	CardThumb MakePyramidCardThumb(PlayerState local, CardDatabase? cards, bool canDev, PyramidCard pc)
+	CardThumb MakePyramidCardThumb(
+		PlayerState local,
+		CardDatabase? cards,
+		bool canDev,
+		bool canRecolor,
+		PyramidCard pc)
 	{
 		var tip = cards is null
 			? $"#{pc.Card.DefinitionId}"
@@ -552,7 +681,8 @@ public partial class GameScreenController : Control
 			name,
 			tip,
 			ThumbPyramid,
-			reserveCaption: false);
+			reserveCaption: false,
+			sectorOverrides: pc.SectorOverrides.Count > 0 ? pc.SectorOverrides : null);
 		thumb.ZIndex = pc.Level;
 		thumb.SetTokenBadges(PyramidStats.TokenBadges(pc));
 		BindInspect(thumb, cards, pc.Card.Kind, pc.Card.DefinitionId, name, tip);
@@ -564,7 +694,49 @@ public partial class GameScreenController : Control
 				handIndex => DropOnPyramidCard(local, handIndex, pc));
 		}
 
+		if (canRecolor)
+		{
+			var instanceId = pc.Card.InstanceId;
+			thumb.EnableSectorRecolor(
+				corner => PaintSector(instanceId, corner),
+				corner => ClearSectorPaint(instanceId, corner));
+		}
+
 		return thumb;
+	}
+
+	void PaintSector(int cardInstanceId, string corner)
+	{
+		if (_recolorColor is not GemColor color)
+		{
+			_notice.Enqueue("Выберите цвет", "Сначала нажмите цвет камня в строке «Цвет кисти».");
+			return;
+		}
+
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new RecolorSectorCommand(
+			session.Session?.LocalPlayerId ?? 0,
+			cardInstanceId,
+			corner,
+			color));
+		Refresh();
+	}
+
+	void ClearSectorPaint(int cardInstanceId, string corner)
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new ClearSectorRecolorCommand(
+			session.Session?.LocalPlayerId ?? 0,
+			cardInstanceId,
+			corner));
+		Refresh();
+	}
+
+	void OnConfirmRecolor()
+	{
+		var session = GetNode<GameSessionAutoload>("/root/GameSession");
+		session.Submit(new ConfirmRecolorCommand(session.Session?.LocalPlayerId ?? 0));
+		Refresh();
 	}
 
 	PyramidDropSlot MakeDropSlot(

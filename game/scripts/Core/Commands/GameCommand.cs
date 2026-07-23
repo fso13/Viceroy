@@ -54,6 +54,22 @@ public sealed record ChooseDeckDrawCommand(int PlayerId, bool FromLawDeck) : Gam
 
 public sealed record UndoCommand(int PlayerId) : GameCommand(PlayerId);
 
+/// <summary>End-game: paint a pyramid card sector with a gem from behind the screen.</summary>
+public sealed record RecolorSectorCommand(
+	int PlayerId,
+	int CardInstanceId,
+	string Corner,
+	GemColor Color) : GameCommand(PlayerId);
+
+/// <summary>End-game: remove a sector paint and return the gem.</summary>
+public sealed record ClearSectorRecolorCommand(
+	int PlayerId,
+	int CardInstanceId,
+	string Corner) : GameCommand(PlayerId);
+
+/// <summary>End-game: finish recoloring and wait for other players / scoring.</summary>
+public sealed record ConfirmRecolorCommand(int PlayerId) : GameCommand(PlayerId);
+
 /// <summary>Law 67 multi-step: decline, pick own/other token, pay 3 gems, confirm.</summary>
 public sealed record ResolveTokenSwapCommand(
 	int PlayerId,

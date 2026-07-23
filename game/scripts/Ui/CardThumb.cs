@@ -132,13 +132,85 @@ public partial class CardThumb : PanelContainer
 		Vector2 artSize,
 		Action? onPressed = null,
 		bool showCaption = false,
-		bool reserveCaption = true)
+		bool reserveCaption = true,
+		IReadOnlyDictionary<string, GemColor>? sectorOverrides = null)
 	{
 		if (Face is null)
 			Build();
-		Face!.ShowFromDb(db, kind, definitionId);
+		Face!.ShowFromDb(db, kind, definitionId, sectorOverrides);
 		ApplyChrome(caption, tooltip, artSize, showCaption, reserveCaption, onPressed);
+		ClearSectorHotspots();
 	}
+
+	/// <summary>End-game recolor: clickable corner pads on the card art.</summary>
+	public void EnableSectorRecolor(Action<string> onPaint, Action<string> onClear)
+	{
+		if (_artStack is null)
+			Build();
+		ClearSectorHotspots();
+		_artStack!.MouseFilter = MouseFilterEnum.Stop;
+
+		AddCornerHotspot("tl", new Vector2(0.02f, 0.02f), onPaint, onClear);
+		AddCornerHotspot("tr", new Vector2(0.72f, 0.02f), onPaint, onClear);
+		AddCornerHotspot("bl", new Vector2(0.28f, 0.72f), onPaint, onClear);
+		AddCornerHotspot("br", new Vector2(0.52f, 0.72f), onPaint, onClear);
+	}
+
+	void AddCornerHotspot(string corner, Vector2 anchor, Action<string> onPaint, Action<string> onClear)
+	{
+		var btn = new Button
+		{
+			Text = "",
+			Flat = true,
+			FocusMode = FocusModeEnum.None,
+			MouseDefaultCursorShape = CursorShape.PointingHand,
+			TooltipText = corner switch
+			{
+				"tl" => "Верхний левый сектор\nЛКМ — окрасить выбранным цветом\nПКМ — снять окраску",
+				"tr" => "Верхний правый сектор\nЛКМ — окрасить выбранным цветом\nПКМ — снять окраску",
+				"bl" => "Нижний левый сектор\nЛКМ — окрасить выбранным цветом\nПКМ — снять окраску",
+				_ => "Нижний правый сектор\nЛКМ — окрасить выбранным цветом\nПКМ — снять окраску"
+			}
+		};
+		btn.SetAnchorsPreset(LayoutPreset.TopLeft);
+		btn.AnchorLeft = anchor.X;
+		btn.AnchorTop = anchor.Y;
+		btn.AnchorRight = anchor.X + 0.26f;
+		btn.AnchorBottom = anchor.Y + 0.26f;
+		btn.OffsetLeft = 0;
+		btn.OffsetTop = 0;
+		btn.OffsetRight = 0;
+		btn.OffsetBottom = 0;
+		btn.GuiInput += e =>
+		{
+			if (e is not InputEventMouseButton { Pressed: true } mb)
+				return;
+			if (mb.ButtonIndex == MouseButton.Left)
+			{
+				onPaint(corner);
+				GetViewport().SetInputAsHandled();
+			}
+			else if (mb.ButtonIndex == MouseButton.Right)
+			{
+				onClear(corner);
+				GetViewport().SetInputAsHandled();
+			}
+		};
+		btn.SetMeta("sector_hotspot", true);
+		_artStack.AddChild(btn);
+	}
+
+	void ClearSectorHotspots()
+	{
+		if (_artStack is null)
+			return;
+		foreach (var child in _artStack.GetChildren().ToArray())
+		{
+			if (child is Control c && c.HasMeta("sector_hotspot"))
+				c.QueueFree();
+		}
+	}
+
 
 	void ApplyChrome(
 		string caption,

@@ -526,6 +526,7 @@ public static class GameSnapshot
 		public bool AcquiredAuctionCardThisTurn { get; set; }
 		public bool ActedThisDevelopmentRound { get; set; }
 		public bool SkipNextAuction { get; set; }
+		public bool HasFinishedRecolor { get; set; }
 
 		public static PlayerDto From(PlayerState p) => new()
 		{
@@ -543,7 +544,8 @@ public static class GameSnapshot
 			HasPassedDevelopment = p.HasPassedDevelopment,
 			AcquiredAuctionCardThisTurn = p.AcquiredAuctionCardThisTurn,
 			ActedThisDevelopmentRound = p.ActedThisDevelopmentRound,
-			SkipNextAuction = p.SkipNextAuction
+			SkipNextAuction = p.SkipNextAuction,
+			HasFinishedRecolor = p.HasFinishedRecolor
 		};
 
 		public PlayerState ToPlayer()
@@ -557,7 +559,8 @@ public static class GameSnapshot
 				HasPassedDevelopment = HasPassedDevelopment,
 				AcquiredAuctionCardThisTurn = AcquiredAuctionCardThisTurn,
 				ActedThisDevelopmentRound = ActedThisDevelopmentRound,
-				SkipNextAuction = SkipNextAuction
+				SkipNextAuction = SkipNextAuction,
+				HasFinishedRecolor = HasFinishedRecolor
 			};
 			Screen.ApplyTo(p.Screen);
 			foreach (var c in Hand)

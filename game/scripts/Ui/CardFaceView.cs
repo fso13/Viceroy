@@ -19,6 +19,7 @@ public partial class CardFaceView : Control
 	CharacterCard? _character;
 	LawCard? _law;
 	int _placeholderId;
+	Dictionary<string, GemColor>? _sectorOverrides;
 
 	static readonly Color Parchment = new(0.16f, 0.14f, 0.11f);
 	static readonly Color ParchmentLaw = new(0.12f, 0.14f, 0.16f);
@@ -38,22 +39,25 @@ public partial class CardFaceView : Control
 		_kind = FaceKind.Back;
 		_character = null;
 		_law = null;
+		_sectorOverrides = null;
 		QueueRedraw();
 	}
 
-	public void ShowCharacter(CharacterCard card)
+	public void ShowCharacter(CharacterCard card, IReadOnlyDictionary<string, GemColor>? sectorOverrides = null)
 	{
 		_kind = FaceKind.Character;
 		_character = card;
 		_law = null;
+		_sectorOverrides = sectorOverrides is null ? null : new Dictionary<string, GemColor>(sectorOverrides);
 		QueueRedraw();
 	}
 
-	public void ShowLaw(LawCard card)
+	public void ShowLaw(LawCard card, IReadOnlyDictionary<string, GemColor>? sectorOverrides = null)
 	{
 		_kind = FaceKind.Law;
 		_law = card;
 		_character = null;
+		_sectorOverrides = sectorOverrides is null ? null : new Dictionary<string, GemColor>(sectorOverrides);
 		QueueRedraw();
 	}
 
@@ -63,10 +67,15 @@ public partial class CardFaceView : Control
 		_placeholderId = definitionId;
 		_character = null;
 		_law = null;
+		_sectorOverrides = null;
 		QueueRedraw();
 	}
 
-	public void ShowFromDb(CardDatabase? db, CardKind kind, int definitionId)
+	public void ShowFromDb(
+		CardDatabase? db,
+		CardKind kind,
+		int definitionId,
+		IReadOnlyDictionary<string, GemColor>? sectorOverrides = null)
 	{
 		if (db is null)
 		{
@@ -75,9 +84,9 @@ public partial class CardFaceView : Control
 		}
 
 		if (kind == CardKind.Character && db.Characters.TryGetValue(definitionId, out var ch))
-			ShowCharacter(ch);
+			ShowCharacter(ch, sectorOverrides);
 		else if (kind == CardKind.Law && db.Laws.TryGetValue(definitionId, out var law))
-			ShowLaw(law);
+			ShowLaw(law, sectorOverrides);
 		else
 			ShowPlaceholder(definitionId);
 	}
@@ -88,6 +97,9 @@ public partial class CardFaceView : Control
 		_character = other._character;
 		_law = other._law;
 		_placeholderId = other._placeholderId;
+		_sectorOverrides = other._sectorOverrides is null
+			? null
+			: new Dictionary<string, GemColor>(other._sectorOverrides);
 		QueueRedraw();
 	}
 
@@ -171,7 +183,7 @@ public partial class CardFaceView : Control
 			DrawLevelRow(level, row, font, fs);
 		}
 
-		DrawSectors(card.Sectors, size, sectorR);
+		DrawSectors(EffectiveSectors(card.Sectors), size, sectorR);
 		DrawNamePlate(card.Name, size, sectorR, font);
 		DrawId(card.Id, size, sectorR, font);
 		DrawFrame(size);
@@ -198,8 +210,21 @@ public partial class CardFaceView : Control
 		DrawString(font, bodyRect.Position + new Vector2(0, bodyFs), body,
 			HorizontalAlignment.Left, (int)bodyRect.Size.X, bodyFs, InkDim);
 
-		DrawSectors(card.Sectors, size, sectorR);
+		DrawSectors(EffectiveSectors(card.Sectors), size, sectorR);
 		DrawFrame(size);
+	}
+
+	SectorColors EffectiveSectors(SectorColors printed)
+	{
+		if (_sectorOverrides is null || _sectorOverrides.Count == 0)
+			return printed;
+		return new SectorColors
+		{
+			Tl = _sectorOverrides.TryGetValue("tl", out var tl) ? tl : printed.Tl,
+			Tr = _sectorOverrides.TryGetValue("tr", out var tr) ? tr : printed.Tr,
+			Bl = _sectorOverrides.TryGetValue("bl", out var bl) ? bl : printed.Bl,
+			Br = _sectorOverrides.TryGetValue("br", out var br) ? br : printed.Br
+		};
 	}
 
 	void DrawLevelRow(LevelReward level, Rect2 row, Font font, int fontSize)

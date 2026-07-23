@@ -17,8 +17,10 @@ public sealed class FinalScorer
 			player.Hand.Clear();
 		}
 
-		foreach (var player in state.Players.Where(p => p.Role != SessionRole.VirtualOpponent))
-			GreedyRecolor(player);
+		// Humans already recolored interactively; virtuals were auto-recolored in Recolor phase.
+		// If ScoreMatch is invoked without that phase (tests / legacy), greedy-paint remaining players.
+		foreach (var player in state.Players.Where(p => !p.HasFinishedRecolor))
+			ApplyGreedyRecolor(player, state.Reserve);
 
 		var scores = state.Players
 			.Where(p => p.Role != SessionRole.VirtualOpponent)
@@ -153,7 +155,11 @@ public sealed class FinalScorer
 		return total;
 	}
 
-	void GreedyRecolor(PlayerState player)
+	/// <summary>AI / fallback: spend screen gems to complete monochrome circles.</summary>
+	public void ApplyGreedyRecolor(PlayerState player, GemWallet? spentToReserve = null) =>
+		GreedyRecolor(player, spentToReserve);
+
+	void GreedyRecolor(PlayerState player, GemWallet? spentToReserve = null)
 	{
 		var changed = true;
 		while (changed)
@@ -189,6 +195,7 @@ public sealed class FinalScorer
 					foreach (var m in mismatches)
 					{
 						player.Screen.TrySpend(target);
+						spentToReserve?.Add(target);
 						m.Card.SectorOverrides[m.Corner] = target;
 					}
 
