@@ -9,8 +9,8 @@ mono_crash.*.json
 bin/
 obj/
 
-# Godot export artifacts (binaries exceed GitHub limits)
-export/
+# macOS .app binaries exceed GitHub's 100MB limit
+export/macos/
 
 # IDE
 .vs/
