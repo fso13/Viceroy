@@ -33,6 +33,19 @@ public partial class MainMenuController : Control
 		_statusLabel.Text = session.Cards is null
 			? "Ошибка загрузки data/cards.json"
 			: $"Карт: {session.Cards.Characters.Count} персонажей, {session.Cards.Laws.Count} законов";
+
+		var center = GetNode<Control>("Center");
+		Callable.From(() => PlayEnter(center)).CallDeferred();
+	}
+
+	void PlayEnter(Control center)
+	{
+		if (!GodotObject.IsInstanceValid(center))
+			return;
+		UiAnim.PopIn(center, delay: 0.05f, fromScale: 0.94f, duration: 0.35f);
+		var title = center.GetNodeOrNull<Label>("Title");
+		if (title is not null)
+			UiAnim.FlashModulate(title, new Color(1f, 0.92f, 0.55f), duration: 0.7f);
 	}
 
 	void FillResolutionOptions()

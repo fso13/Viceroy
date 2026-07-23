@@ -17,6 +17,7 @@ public partial class PyramidDropSlot : PanelContainer
 	static readonly StyleBoxFlat Reject = MakeStyle(new Color(0.25f, 0.12f, 0.12f, 0.5f), new Color(0.7f, 0.3f, 0.3f, 0.6f));
 
 	Label _label = null!;
+	Tween? _idlePulse;
 
 	public void Configure(
 		int level,
@@ -40,6 +41,21 @@ public partial class PyramidDropSlot : PanelContainer
 		CustomMinimumSize = size;
 		AddThemeStyleboxOverride("panel", Idle);
 		MouseFilter = MouseFilterEnum.Stop;
+		StartIdlePulse();
+	}
+
+	void StartIdlePulse()
+	{
+		_idlePulse?.Kill();
+		Modulate = Colors.White;
+		_idlePulse = UiAnim.SoftPulseLoop(this, minA: 0.62f, maxA: 1f, period: 1.25f);
+	}
+
+	void StopIdlePulse()
+	{
+		_idlePulse?.Kill();
+		_idlePulse = null;
+		Modulate = Colors.White;
 	}
 
 	void Build(Vector2 size)
@@ -70,6 +86,7 @@ public partial class PyramidDropSlot : PanelContainer
 			return false;
 		}
 
+		StopIdlePulse();
 		var ok = _canAccept(handIndex);
 		AddThemeStyleboxOverride("panel", ok ? Hot : Reject);
 		return ok;
@@ -78,15 +95,20 @@ public partial class PyramidDropSlot : PanelContainer
 	public override void _DropData(Vector2 atPosition, Variant data)
 	{
 		AddThemeStyleboxOverride("panel", Idle);
+		StartIdlePulse();
 		if (!TryReadHandIndex(data, out var handIndex))
 			return;
 		_onDrop?.Invoke(handIndex);
+		UiAnim.PulseOnce(this, peak: 1.1f, duration: 0.22f);
 	}
 
 	public override void _Notification(int what)
 	{
 		if (what == NotificationDragEnd)
+		{
 			AddThemeStyleboxOverride("panel", Idle);
+			StartIdlePulse();
+		}
 	}
 
 	public static bool TryReadHandIndex(Variant data, out int handIndex)

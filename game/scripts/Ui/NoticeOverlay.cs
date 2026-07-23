@@ -94,8 +94,18 @@ public partial class NoticeOverlay : Control
 		var (title, body) = _queue.Dequeue();
 		_title.Text = title;
 		_body.Text = body;
+		var wasHidden = !Visible;
 		Visible = true;
 		MoveToFront();
+		if (wasHidden)
+			CallDeferred(nameof(PlayEnter));
+	}
+
+	void PlayEnter()
+	{
+		if (!Visible || _panel is null)
+			return;
+		UiAnim.OverlayIn(_dim, _panel);
 	}
 
 	void Dismiss() => ShowNext();

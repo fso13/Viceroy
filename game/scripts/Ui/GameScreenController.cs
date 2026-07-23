@@ -54,6 +54,7 @@ public partial class GameScreenController : Control
 	ScrollContainer _handScroll = null!;
 	HBoxContainer _tableRow = null!;
 	bool _resizeRefreshQueued;
+	string _lastPhaseText = "";
 
 	public override void _Ready()
 	{
@@ -183,9 +184,9 @@ public partial class GameScreenController : Control
 		if (engine is null)
 		{
 			_scoreboard.HideBoard();
-			_phaseLabel.Text = session.ActiveMode == GameMode.Client
+			SetPhaseText(session.ActiveMode == GameMode.Client
 				? "Клиент (ожидание снапшота от хоста)"
-				: "Нет активной партии";
+				: "Нет активной партии");
 			_infoLabel.Text = $"Режим: {session.ActiveMode}";
 			ClearContainer(_pyramidCards);
 			ClearContainer(_auctionCards);
@@ -209,9 +210,9 @@ public partial class GameScreenController : Control
 		var localId = session.Session!.LocalPlayerId;
 		if (s.Phase == TurnPhase.GameOver && s.Result is { } result)
 		{
-			_phaseLabel.Text = result.IsDraw
+			SetPhaseText(result.IsDraw
 				? "Ничья"
-				: $"Победитель: {result.Scores.First(x => result.WinnerIds.Contains(x.PlayerId)).DisplayName}";
+				: $"Победитель: {result.Scores.First(x => result.WinnerIds.Contains(x.PlayerId)).DisplayName}");
 			_infoLabel.Text = "Партия завершена — итоговая таблица";
 			ClearContainer(_pyramidCards);
 			ClearContainer(_auctionCards);
@@ -240,9 +241,9 @@ public partial class GameScreenController : Control
 		if (s.Phase == TurnPhase.Recolor)
 		{
 			var localRecolor = s.GetPlayer(localId);
-			_phaseLabel.Text = canRecolor
+			SetPhaseText(canRecolor
 				? "Перекраска секторов — выберите цвет камня и нажмите на сектор карты"
-				: "Перекраска — ожидание других игроков";
+				: "Перекраска — ожидание других игроков");
 			_infoLabel.Text = canRecolor
 				? "ЛКМ по сектору — окрасить выбранным цветом · ПКМ — снять окраску · затем «Готово»"
 				: "Вы завершили перекраску";
@@ -283,14 +284,14 @@ public partial class GameScreenController : Control
 		_confirmRecolorButton.Visible = false;
 		_recolorColor = null;
 
-		_phaseLabel.Text = $"Ход {s.Turn}/{GameState.MaxTurns} — {s.Phase}" +
+		SetPhaseText($"Ход {s.Turn}/{GameState.MaxTurns} — {s.Phase}" +
 			(s.FinalTurnInProgress ? " [ФИНАЛ]" : "") +
 			(s.Phase == TurnPhase.Auction
 				? $" / круг {(int)s.AuctionRound} / {s.AuctionSubPhase}"
 				: "") +
 			(s.Phase == TurnPhase.Development
 				? $" / раунд {s.DevelopmentRound} / {s.DevelopmentSubPhase}"
-				: "");
+				: ""));
 
 		var local = s.GetPlayer(localId);
 
@@ -447,6 +448,15 @@ public partial class GameScreenController : Control
 				Text = $"  кисть: {GemIcons.ColorName(brush)}",
 				VerticalAlignment = VerticalAlignment.Center
 			});
+	}
+
+	void SetPhaseText(string text)
+	{
+		var changed = text != _lastPhaseText;
+		_phaseLabel.Text = text;
+		if (changed && _lastPhaseText.Length > 0)
+			UiAnim.FlashModulate(_phaseLabel, new Color(1f, 0.92f, 0.55f), duration: 0.45f);
+		_lastPhaseText = text;
 	}
 
 	void UpdateUndoButton(GameSessionAutoload session)

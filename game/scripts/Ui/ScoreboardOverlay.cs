@@ -34,6 +34,7 @@ public partial class ScoreboardOverlay : Control
 	];
 
 	ColorRect _dim = null!;
+	PanelContainer _panel = null!;
 	VBoxContainer _table = null!;
 	Label _title = null!;
 	Label _notes = null!;
@@ -116,6 +117,7 @@ public partial class ScoreboardOverlay : Control
 		root.AddChild(menuButton);
 		panel.AddChild(root);
 		AddChild(panel);
+		_panel = panel;
 	}
 
 	public void ShowResult(MatchResult result, int localPlayerId, Action onMenu)
@@ -133,8 +135,7 @@ public partial class ScoreboardOverlay : Control
 		if (ranked.Count == 0)
 		{
 			_title!.Text = "Итоги партии";
-			Visible = true;
-			MoveToFront();
+			Reveal();
 			return;
 		}
 
@@ -179,8 +180,40 @@ public partial class ScoreboardOverlay : Control
 			_notes.Text = "";
 		}
 
+		Reveal();
+	}
+
+	void Reveal()
+	{
+		var wasHidden = !Visible;
 		Visible = true;
 		MoveToFront();
+		if (!wasHidden || _panel is null)
+			return;
+
+		CallDeferred(nameof(PlayEnter));
+		var delay = 0.05f;
+		foreach (var child in _table.GetChildren())
+		{
+			if (child is not Control row)
+				continue;
+			row.Modulate = new Color(1, 1, 1, 0);
+			var captured = row;
+			var d = delay;
+			var tween = CreateTween();
+			tween.TweenInterval(d);
+			tween.TweenProperty(captured, "modulate:a", 1f, 0.18f)
+				.SetTrans(Tween.TransitionType.Cubic)
+				.SetEase(Tween.EaseType.Out);
+			delay += 0.04f;
+		}
+	}
+
+	void PlayEnter()
+	{
+		if (!Visible || _panel is null)
+			return;
+		UiAnim.OverlayIn(_dim, _panel, duration: 0.32f);
 	}
 
 	public void HideBoard()

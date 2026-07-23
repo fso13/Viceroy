@@ -290,6 +290,18 @@ public partial class CardThumb : PanelContainer
 	{
 		Selected = selected;
 		AddThemeStyleboxOverride("panel", selected ? SelectedStyle : NormalStyle);
+		if (selected && IsInsideTree())
+			UiAnim.PulseOnce(this, peak: 1.08f, duration: 0.2f);
+	}
+
+	public override void _Notification(int what)
+	{
+		if (what == NotificationDragEnd)
+			AddThemeStyleboxOverride("panel", Selected ? SelectedStyle : NormalStyle);
+		else if (what == NotificationMouseEnter && (_dragHandIndex is not null || _onPressed is not null))
+			UiAnim.HoverScale(this, hovered: true, hover: 1.06f);
+		else if (what == NotificationMouseExit)
+			UiAnim.HoverScale(this, hovered: false);
 	}
 
 	public override void _Process(double delta)
@@ -375,12 +387,6 @@ public partial class CardThumb : PanelContainer
 		if (!PyramidDropSlot.TryReadHandIndex(data, out var handIndex))
 			return;
 		_onCardDrop?.Invoke(handIndex);
-	}
-
-	public override void _Notification(int what)
-	{
-		if (what == NotificationDragEnd)
-			AddThemeStyleboxOverride("panel", Selected ? SelectedStyle : NormalStyle);
 	}
 
 	static StyleBoxFlat MakeStyle(Color bg, Color border)

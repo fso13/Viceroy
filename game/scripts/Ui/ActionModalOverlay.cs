@@ -105,9 +105,7 @@ public partial class ActionModalOverlay : Control
 			_actions.AddChild(btn);
 		}
 
-		Visible = true;
-		MoveToFront();
-		CallDeferred(nameof(CenterPanel));
+		Reveal();
 	}
 
 	public void ShowGemChoices(string title, string? body, IReadOnlyList<(GemColor Color, Action OnPressed)> gems)
@@ -140,9 +138,7 @@ public partial class ActionModalOverlay : Control
 		}
 
 		_actions.AddChild(row);
-		Visible = true;
-		MoveToFront();
-		CallDeferred(nameof(CenterPanel));
+		Reveal();
 	}
 
 	public void HideModal()
@@ -152,6 +148,23 @@ public partial class ActionModalOverlay : Control
 			return;
 		foreach (var child in _actions.GetChildren())
 			child.QueueFree();
+	}
+
+	void Reveal()
+	{
+		var wasHidden = !Visible;
+		Visible = true;
+		MoveToFront();
+		CallDeferred(nameof(CenterPanel));
+		if (wasHidden)
+			CallDeferred(nameof(PlayEnter));
+	}
+
+	void PlayEnter()
+	{
+		if (!Visible || _panel is null)
+			return;
+		UiAnim.OverlayIn(_dim, _panel);
 	}
 
 	void CenterPanel()

@@ -80,8 +80,7 @@ public partial class CardZoomOverlay : Control
 		_face!.ShowFromDb(db, kind, definitionId);
 		_title.Text = title;
 		_body.Text = details;
-		Visible = true;
-		CallDeferred(nameof(CenterPanel));
+		Reveal();
 	}
 
 	public void ShowBack(string title, string details)
@@ -91,14 +90,30 @@ public partial class CardZoomOverlay : Control
 		_face!.ShowBack();
 		_title.Text = title;
 		_body.Text = details;
+		Reveal();
+	}
+
+	void Reveal()
+	{
+		var wasHidden = !Visible;
 		Visible = true;
 		CallDeferred(nameof(CenterPanel));
+		if (wasHidden)
+			CallDeferred(nameof(PlayEnter));
+	}
+
+	void PlayEnter()
+	{
+		if (!Visible || _panel is null)
+			return;
+		UiAnim.OverlayIn(_dim, _panel, duration: 0.22f);
 	}
 
 	void CenterPanel()
 	{
 		var size = _panel.GetCombinedMinimumSize();
 		_panel.Position = (Size - size) * 0.5f;
+		UiAnim.EnsurePivot(_panel);
 	}
 
 	public void HideZoom() => Visible = false;
